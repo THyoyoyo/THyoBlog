@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.blogs.mapper.article.ArticleHomeRecommendMapper">
+
+    <select id="getList" resultType="java.util.Map">
+        select
+            a.*,
+            u.name
+        from
+            article_home_recommend as ahr
+            LEFT JOIN article as a on ahr.article_id = a.id
+            LEFT JOIN user as u on ahr.user_id = u.id
+    </select>
+</mapper>

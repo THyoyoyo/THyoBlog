@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.blogs.mapper.article.ArticleLabelInfoMapper">
+
+    <select id="list" resultType="com.blogs.model.article.ArticleLabelInfo" parameterType="Map">
+        SELECT
+        ali.*,
+        user.name as userName
+        FROM
+        article_label_info AS ali
+        left JOIN user on user.id = ali.user_id
+        <where>
+            <if test="params.userId !=null and params.userId !=''">
+                and ali.user_id = #{params.userId}
+            </if>
+        </where>
+    </select>
+
+</mapper>

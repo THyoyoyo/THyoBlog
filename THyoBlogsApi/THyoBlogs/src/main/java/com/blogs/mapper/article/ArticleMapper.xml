@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.blogs.mapper.article.ArticleMapper">
+
+
+    <select id="getList" resultType="com.blogs.model.article.Article" parameterType="Map">
+        SELECT
+            a.*,
+            u.NAME AS userName,
+            ao.name as oneName,
+            atwo.name as twoName,
+            ifnull((select 1 from article_home_recommend as ahr where ahr.article_id = a.id ),0) as homeCommend
+        FROM
+            article AS a
+            LEFT JOIN user AS u ON u.id = a.user_id
+            LEFT JOIN article_one_class AS ao ON ao.id = a.class_one_id
+            LEFT JOIN article_two_class AS atwo ON atwo.id = a.class_two_id
+            LEFT JOIN article_label AS arl ON arl.article_id = a.id
+        <where>
+            <if test="params.id !=null and params.id !=''">
+                and  a.id = #{params.id}
+            </if>
+            <if test="params.title !=null and params.title !=''">
+                and a.title LIKE CONCAT('%',#{params.title,jdbcType=VARCHAR},'%')
+            </if>
+            <if test="params.oneClassId !=null and params.oneClassId !=''">
+              and a.class_one_id = #{params.oneClassId}
+            </if>
+
+            <if test="params.twoClassId !=null and params.twoClassId !=''">
+             and  a.class_two_id = #{params.twoClassId}
+            </if>
+
+            <if test="params.labelId !=null and params.labelId !=''">
+                and  arl.label_id = #{params.labelId}
+            </if>
+
+        </where>
+        group by a.id
+        ORDER BY  a.creation_time DESC
+
+
+    </select>
+
+
+    <select id="getArticleInfo" resultType="com.blogs.model.article.Article">
+        SELECT
+            a.*,
+            u.NAME AS userName,
+            (SELECT COUNT(id) FROM article_comment WHERE article_comment.article_id = #{id}) as articleCommentNum
+        FROM
+            article AS a
+            LEFT JOIN USER AS u ON u.id = a.user_id
+        WHERE
+            a.id = #{id}
+    </select>
+</mapper>

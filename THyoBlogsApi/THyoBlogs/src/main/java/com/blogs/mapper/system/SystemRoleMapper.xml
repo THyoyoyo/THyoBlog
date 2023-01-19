@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.blogs.mapper.system.SystemRoleMapper">
+
+	<sql id="where">
+		<where>
+			<if test="params.id != null and params.id != ''">
+				and systemRole.id = #{params.id}
+			</if>
+
+			<if test="params.roleId != null and params.roleId != ''">
+				and systemRole.role_id = #{params.roleId}
+			</if>
+
+			<if test="params.menusId != null and params.menusId != ''">
+				and systemRole.menus_id = #{params.menusId}
+			</if>
+
+		</where>
+	</sql>
+   <select id="getListByMenuId" resultType="int">
+     select
+		 sr.menus_id
+     from
+        system_role as sr
+     where
+      	sr.role_id = #{roleId}
+   </select>
+</mapper>

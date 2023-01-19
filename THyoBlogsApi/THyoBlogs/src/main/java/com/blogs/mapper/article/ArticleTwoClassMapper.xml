@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.blogs.mapper.article.ArticleTwoClassMapper">
+    <select id="getArticleTwoClassAll" resultType="com.blogs.model.article.ArticleTwoClass">
+
+        select
+            article_two_class.*,
+            article_one_class.name  as oneName
+        from
+            article_two_class
+        left  join  article_one_class  on  article_one_class.id = article_two_class.one_class_id
+        where
+            article_two_class.one_class_id = #{id}
+    </select>
+</mapper>

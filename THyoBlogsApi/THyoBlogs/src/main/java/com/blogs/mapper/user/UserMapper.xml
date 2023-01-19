@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.blogs.mapper.user.UserMapper">
+
+
+    <select id="getList" resultType="com.blogs.vo.user.userListVo">
+        SELECT
+            u.*,
+            sri.name as roleName
+        FROM
+            USER AS u
+            LEFT JOIN system_role_info AS sri ON sri.id = u.role_id
+    </select>
+
+
+
+</mapper>

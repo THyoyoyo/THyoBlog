@@ -1,0 +1,93 @@
+package com.blogs.controller;
+
+
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.blogs.constants.JwtConstants;
+import com.blogs.mapper.user.UserMapper;
+import com.blogs.model.user.User;
+import com.blogs.service.SystemService;
+import com.blogs.service.UserService;
+import com.blogs.util.CookieUtil;
+import com.blogs.util.CurrentUserUtil;
+import com.blogs.util.IPUtil;
+import com.blogs.util.JWTUtil;
+import com.blogs.vo.common.R;
+import com.blogs.vo.login.RegisterVo;
+import com.blogs.vo.user.UserInfoVo;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Date;
+import java.util.Map;
+
+@RestController
+@RequestMapping("/api/login")
+@Api(tags = "登录注册模块")
+public class LoginController {
+    @Autowired
+    UserMapper userMapper;
+
+    @Autowired
+    UserService userService;
+
+    @Autowired
+    SystemService systemService;
+
+
+
+
+    @PostMapping("/register")
+    @ApiOperation("用户登录")
+    public R Login(@RequestBody RegisterVo registerVo, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        String ip = IPUtil.getIpAddr(request);
+        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+        userQueryWrapper.eq("account",registerVo.getAccount()).eq("password",registerVo.getPassword());
+        User user = userMapper.selectOne(userQueryWrapper);
+        if(user == null){
+            return R.failed(402,"帐号或密码错误");
+        }
+        UserInfoVo userInfoVo = new UserInfoVo();
+        BeanUtils.copyProperties(user,userInfoVo);
+        String token = JWTUtil.generateToken(user.getId(), ip);
+        userInfoVo.setToken(token);
+        userInfoVo.setLastTime(new Date());
+
+        //更新权限信息
+        userInfoVo.setMenus(systemService.getRoleMenus(user.getRoleId()));
+
+        //客户端添加Cookie
+
+        CookieUtil.set(response, JwtConstants.COOKIE_TOKEN, token, JwtConstants.TOKEN_EXPIRE_TIME.intValue());
+
+
+
+        //更新用户信息
+        user.setToken(token);
+        user.setLastTime(new Date());
+
+        userMapper.updateById(user);
+
+
+        return  R.succeed(userInfoVo);
+    }
+
+
+    @GetMapping("/out")
+    @ApiOperation("用户退出")
+    public R out (HttpServletRequest request, HttpServletResponse response) throws Exception {
+        Integer userId = CurrentUserUtil.getUserId();
+        if(userId !=null){
+            User user = new User();
+            user.setId(userId);
+            user.setToken("0");
+            userMapper.updateById(user);
+        }
+        CookieUtil.set(response, JwtConstants.COOKIE_TOKEN, null,1);
+        return  R.succeed(userId);
+    }
+}
