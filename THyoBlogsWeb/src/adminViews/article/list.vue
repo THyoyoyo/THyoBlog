@@ -204,6 +204,17 @@
               </el-upload>
             </div>
           </template>
+          <template #label>
+            <div>
+              <p>预览首图：</p>
+              <el-button
+                type="info"
+                class="back-btn"
+                @click="openImgSelectBox('图片选择弹窗')"
+                >资源库</el-button
+              >
+            </div>
+          </template>
         </el-form-item>
         <el-form-item label="文章正文：" v-model="articleForm.content">
           <div id="wangEditor"></div>
@@ -243,6 +254,21 @@
         </el-timeline-item>
       </el-timeline>
     </el-drawer>
+    <el-drawer
+      v-model="drawerBox.state"
+      title="图片资源选择"
+      direction="rtl"
+      size="700px"
+    >
+      <div class="drawerBoxMain">
+        <div class="imgItem" v-for="(item, key) in imgList" :key="key">
+          <img :src="item.url" alt="" />
+          <el-button type="info" plain @click="getResourceUrl(item)"
+            >选择</el-button
+          >
+        </div>
+      </div>
+    </el-drawer>
   </div>
 </template>
 <script >
@@ -262,7 +288,7 @@ import { Plus } from "@element-plus/icons";
 import { getBase64, imageToBase64 } from "../../utils/getBase64";
 import { TElNotification, TElMessage } from "../../utils/inform";
 import uploadFiles from "../../utils/uploadFiles";
-
+import { getWebFile } from "../../api/system";
 export default {
   components: {
     Plus,
@@ -274,6 +300,7 @@ export default {
       labelList: [],
       commentList: [],
       atOneClass: {},
+      imgList: [],
     });
     const queryForm = reactive({
       id: "",
@@ -314,7 +341,8 @@ export default {
         labels: [],
         brief: "",
         content: "",
-        preview: "",
+        preview:
+          "http://image.thyo.xyz/img/380a267e-35a6-09bf-306a-88fd08da9b8a",
       };
     };
     let articleForm = reactive(articleFormData());
@@ -451,6 +479,35 @@ export default {
         }
       });
     };
+
+    // 打开网站资源
+    let drawerBox = reactive({
+      title: "图片选择弹窗",
+      state: false,
+    });
+
+    // 打开图片选择弹窗
+    let openImgSelectBox = (title, type) => {
+      console.log(title, type);
+      drawerBox.title = title;
+      drawerBox.state = true;
+      getImgList();
+    };
+
+    // 加载列表
+    let getImgList = (queyr = {}) => {
+      getWebFile(queyr).then((res) => {
+        if (res.code == 200) {
+          state.imgList = res.data;
+        }
+      });
+    };
+
+    // 资源库中获取图片
+    let getResourceUrl = (item) => {
+      articleForm.preview = item.url;
+    };
+
     return {
       queryForm,
       onSubmit,
@@ -466,6 +523,9 @@ export default {
       drawer,
       openDrawer,
       delArticle,
+      getResourceUrl,
+      drawerBox,
+      openImgSelectBox,
     };
   },
 };
@@ -520,6 +580,25 @@ export default {
   }
   .son-drawer {
     margin-top: 15px;
+  }
+  .drawerBoxMain {
+    display: flex;
+    flex-wrap: wrap;
+    .imgItem {
+      display: flex;
+      flex-direction: column;
+      margin-top: 10px;
+      margin-right: 15px;
+      img {
+        height: 170px;
+        border: 1px solid #c8c9cc;
+        border-bottom: none;
+      }
+
+      :deep(.el-button) {
+        border-radius: 0;
+      }
+    }
   }
 }
 </style>

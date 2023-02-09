@@ -274,4 +274,56 @@ export default {
     width: 100px !important;
   }
 }
+
+.detalis-content {
+  border-radius: 5px;
+  padding: 0 10px;
+  margin-top: 20px;
+  overflow-x: auto;
+}
+
+.detalis-content p,
+.detalis-content li {
+  white-space: pre-wrap; /* 保留空格 */
+}
+
+.detalis-content blockquote {
+  border-left: 8px solid #d0e5f2;
+  padding: 10px 10px;
+  margin: 10px 0;
+  background-color: #f1f1f1;
+}
+
+.detalis-content code {
+  font-family: monospace;
+  background-color: #eee;
+  padding: 3px;
+  border-radius: 3px;
+}
+.detalis-content pre > code {
+  display: block;
+  padding: 10px;
+}
+
+.detalis-content table {
+  border-collapse: collapse;
+}
+.detalis-content td,
+.detalis-content th {
+  border: 1px solid #ccc;
+  min-width: 50px;
+  height: 20px;
+}
+.detalis-content th {
+  background-color: #f1f1f1;
+}
+
+.detalis-content ul,
+.detalis-content ol {
+  padding-left: 20px;
+}
+
+.detalis-content input[type="checkbox"] {
+  margin-right: 5px;
+}
 </style>
