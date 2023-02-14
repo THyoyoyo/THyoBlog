@@ -31,6 +31,13 @@ public class R<T> implements Serializable {
         return r;
     }
 
+    public static R  succeed(Integer code,String message){
+        R r = new R();
+        r.setCode(code);
+        r.setMessage(message);
+        return r;
+    }
+
 
     public  static R  failed(Integer code,String message){
         R r = new R();

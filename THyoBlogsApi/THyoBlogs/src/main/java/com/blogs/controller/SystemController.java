@@ -111,7 +111,6 @@ public class SystemController {
     @Token
     public R getRoleMenus(@RequestParam("id") Integer id) throws Exception {
         List<SystemMenus> roleMenus = systemService.getRoleMenus(id);
-
         return R.succeed(roleMenus);
     }
 

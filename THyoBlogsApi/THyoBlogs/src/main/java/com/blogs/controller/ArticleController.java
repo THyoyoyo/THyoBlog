@@ -31,7 +31,7 @@ public class ArticleController {
 
     @PostMapping("/add")
     @ApiOperation("添加文章")
-    @Token
+    @Token(permissions = "newArticleBtn")
     public R addArticle(@RequestBody Article article) throws Exception {
         article.setCreationTime(new Date());
         article.setUserId(CurrentUserUtil.getUserId());

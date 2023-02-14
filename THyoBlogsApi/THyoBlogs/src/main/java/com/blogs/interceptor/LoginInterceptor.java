@@ -1,9 +1,12 @@
 package com.blogs.interceptor;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.blogs.annotation.AnnotationTest;
 import com.blogs.annotation.Token;
+import com.blogs.exception.authorityException;
 import com.blogs.mapper.user.UserMapper;
 import com.blogs.model.user.User;
+import com.blogs.service.SystemService;
 import com.blogs.service.UserService;
 import com.blogs.util.CookieUtil;
 import com.blogs.util.JWTUtil;
@@ -31,6 +34,9 @@ public class LoginInterceptor implements HandlerInterceptor {
     @Autowired
     UserService userService;
 
+    @Autowired
+    SystemService systemService;
+
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
         Token annotation;
@@ -38,7 +44,8 @@ public class LoginInterceptor implements HandlerInterceptor {
 
         // 如果不是映射到方法直接通过
         if(handler instanceof HandlerMethod) {
-            annotation = ((HandlerMethod) handler).getMethodAnnotation(Token.class);
+            HandlerMethod handlerMethod = (HandlerMethod)handler;
+            annotation = handlerMethod.getMethod().getAnnotation(Token.class);
         }else{
             return true;
         }
@@ -48,6 +55,13 @@ public class LoginInterceptor implements HandlerInterceptor {
             return true;
         }
 
+        //判断当前角色是否拥有权限
+        if(!annotation.permissions().equals("")){
+            Boolean atRoleByNameBoolean = systemService.getAtRoleByName(annotation.permissions());
+            if(!atRoleByNameBoolean){
+                throw new authorityException(500,"你没有权限访问该接口");
+            }
+        }
 
         String token = CookieUtil.getValue(request, "cookieToken");
         Integer userId;

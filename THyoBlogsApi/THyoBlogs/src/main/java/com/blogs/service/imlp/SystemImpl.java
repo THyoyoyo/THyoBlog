@@ -4,9 +4,11 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.blogs.mapper.system.SystemMenusMapper;
 import com.blogs.mapper.system.SystemRoleInfoMapper;
 import com.blogs.mapper.system.SystemRoleMapper;
+import com.blogs.mapper.user.UserMapper;
 import com.blogs.model.system.SystemMenus;
 import com.blogs.model.system.SystemRole;
 import com.blogs.model.system.SystemRoleInfo;
+import com.blogs.model.user.User;
 import com.blogs.service.SystemService;
 import com.blogs.util.CurrentUserUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +31,9 @@ public class SystemImpl implements SystemService {
 
     @Autowired
     SystemRoleMapper systemRoleMapper;
+
+    @Autowired
+    UserMapper userMapper;
 
 
 
@@ -170,5 +175,29 @@ public class SystemImpl implements SystemService {
         //根据sort排序
         menus.sort((x1,x2)->x1.getSort().compareTo(x2.getSort()));
         return menus;
+    }
+
+    @Override
+    public Boolean getAtRoleByName(String name) throws Exception {
+        //当前用户
+        Integer userId = CurrentUserUtil.getUserId();
+        //获取当前菜单
+        QueryWrapper<SystemMenus> systemMenusQueryWrapper = new QueryWrapper<>();
+        systemMenusQueryWrapper.eq("router",name).last("limit 0,1");
+        SystemMenus systemMenus = systemMenusMapper.selectOne(systemMenusQueryWrapper);
+        if(systemMenus == null){
+            return false;
+        }
+        //查询用户角色
+        User user = userMapper.selectById(userId);
+        //查询是当前角色是否存在权限
+        QueryWrapper<SystemRole> systemRoleQueryWrapper = new QueryWrapper<>();
+        systemRoleQueryWrapper.eq("role_id",user.getRoleId()).eq("menus_id",systemMenus.getId());
+
+        Integer systeRoleCount = systemRoleMapper.selectCount(systemRoleQueryWrapper);
+       if(systeRoleCount > 0){
+           return true;
+       }
+        return false;
     }
 }

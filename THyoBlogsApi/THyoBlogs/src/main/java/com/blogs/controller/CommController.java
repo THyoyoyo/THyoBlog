@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Date;
+
 @RestController
 @RequestMapping("/api/comm")
 @Api(tags = "公共模块")
@@ -23,5 +25,12 @@ public class CommController {
     public R getQlyToken(){
         String uploadFileToken = commService.getUploadFileToken();
          return  R.succeed(uploadFileToken);
+    }
+
+
+    @ApiOperation(value = "获取当前系统时间")
+    @GetMapping("/getTime")
+    public R getTime(){
+        return  R.succeed(new Date());
     }
 }

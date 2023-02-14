@@ -45,4 +45,9 @@ public interface SystemService {
      */
     public List<SystemMenus> getRoleMenus(Integer id) throws Exception;
 
+
+    /**
+     * 判断用户是否拥有当前传入的权限
+     * */
+    public  Boolean getAtRoleByName(String name) throws  Exception;
 }

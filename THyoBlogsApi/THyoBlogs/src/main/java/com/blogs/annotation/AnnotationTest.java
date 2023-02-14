@@ -8,8 +8,7 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface Token {
-
-    boolean validate() default true;
-    String permissions() default  "";
+public @interface AnnotationTest {
+    String name() default "";
+    int age() default 0;
 }

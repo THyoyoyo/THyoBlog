@@ -11,4 +11,5 @@ public interface TestService {
 
     public void adduser( Test user);
 
+    public  Boolean instantCommodity();
 }

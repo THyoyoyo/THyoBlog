@@ -22,4 +22,7 @@ public class Test  implements Serializable {
 
     @ApiModelProperty(value = "年龄")
     private  Integer age;
+
+    @ApiModelProperty(value = "数量")
+    private  Integer num;
 }

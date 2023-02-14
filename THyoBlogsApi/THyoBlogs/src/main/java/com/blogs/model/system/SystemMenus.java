@@ -67,7 +67,11 @@ public class SystemMenus implements Serializable {
 	@ApiModelProperty(value = "排序")
 	private Integer sort;
 
-	/** 创建人 */
+	/** 类型（1:菜单,2:按钮） */
+	@ApiModelProperty(value = "类型（1:菜单,2:按钮）")
+	private Integer type;
+
+	/** 子菜单 */
 	@ApiModelProperty(value = "子菜单")
 	@TableField(exist = false)
 	private List<SystemMenus> childs;
