@@ -6,19 +6,14 @@ import com.blogs.annotation.AnnotationTest;
 import com.blogs.annotation.Token;
 import com.blogs.model.test.Test;
 import com.blogs.service.TestService;
-import com.blogs.util.IPUtil;
 import com.blogs.vo.common.R;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpRequest;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.method.HandlerMethod;
-import sun.plugin.com.JavaClass;
+
 
 import javax.servlet.http.HttpServletRequest;
-import java.lang.reflect.Method;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/test")

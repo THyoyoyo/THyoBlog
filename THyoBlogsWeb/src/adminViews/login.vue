@@ -61,7 +61,7 @@ export default {
           //  权限分离
           let authorityBtnList = [];
           res.data.menus = res.data.menus.filter((v) => {
-            v.childs = v.childs.filter((v2) => {
+            v.childs = v.childs?.filter((v2) => {
               if (v2.type == 2) {
                 authorityBtnList.push(v2);
               }
