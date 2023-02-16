@@ -8,6 +8,11 @@
               <el-table-column prop="id" label="ID" width="60" align="center" />
               <el-table-column prop="icon" label="菜单图标" width="100" />
               <el-table-column prop="name" label="菜单名称" width="120" />
+              <el-table-column prop="type" label="类型" width="120">
+                <template #default="scoped">
+                  <p>{{ scoped.row.type == 1 ? "菜单" : "按钮" }}</p>
+                </template>
+              </el-table-column>
               <el-table-column prop="routerName" label="路由名称" width="120" />
               <el-table-column prop="sort" label="排序" width="80" />
               <el-table-column prop="router" label="前端路由(URL)" />
@@ -46,6 +51,11 @@
       <el-table-column prop="id" label="ID" width="60" align="center" />
       <el-table-column prop="icon" label="菜单图标" width="100" />
       <el-table-column prop="name" label="菜单名称" width="120" />
+      <el-table-column prop="type" label="类型" width="120">
+        <template #default="scoped">
+          <p>{{ scoped.row.type == 1 ? "菜单" : "按钮" }}</p>
+        </template>
+      </el-table-column>
       <el-table-column prop="routerName" label="路由名称" width="120" />
       <el-table-column prop="sort" label="排序" width="80" />
       <el-table-column prop="router" label="前端路由(URL)" />
@@ -85,8 +95,14 @@
         ref="refMenusFrom"
         style="max-width: 520px"
       >
-        <el-form-item label="菜单名称：">
+        <el-form-item label="菜单名称：" required>
           <el-input v-model="menusFrom.name" />
+        </el-form-item>
+        <el-form-item label="类型：">
+          <el-radio-group v-model="menusFrom.type">
+            <el-radio :label="1">菜单</el-radio>
+            <el-radio :label="2">按钮</el-radio>
+          </el-radio-group>
         </el-form-item>
         <el-form-item label="菜单图标：">
           <el-input v-model="menusFrom.icon" />
@@ -167,6 +183,7 @@ export default {
         fileAddress: "",
         parentId: null,
         sort: "",
+        type: "",
       };
     };
     let menusFrom = reactive(menusFromData());

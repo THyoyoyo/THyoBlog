@@ -8,6 +8,7 @@ import './assets/css/animation.css'
 import ElementPlus from "element-plus";
 import VueParticles from 'vue-particles'
 import "./utils/globalConfig"
+import directives from "./directives/index"
 
 
 
@@ -15,5 +16,4 @@ import "./utils/globalConfig"
 
 
 
-
-createApp(App).use(store).use(router).use(ElementPlus).use(VueParticles).mount('#app')
+createApp(App).use(store).use(router).use(ElementPlus).use(VueParticles).use(directives).mount('#app')

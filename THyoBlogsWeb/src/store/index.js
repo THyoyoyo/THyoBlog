@@ -7,7 +7,8 @@ export default createStore({
   state: {
     MainTab: [],  //  顶部页面 tab 数据  
     userInfo: {},
-    adminAuthority: {} //可访问地址
+    adminAuthority: {}, //可访问地址
+    authorityBtn: []
   },
   mutations: {
     addMainTab(state, data) {
@@ -28,6 +29,10 @@ export default createStore({
     // 设置用户信息
     setUserInfo(state, data) {
       state.userInfo = data
+    },
+    // 设置可用权限按钮
+    setAuthorityBtn(state, data) {
+      state.authorityBtn = data
     },
     // 重置
     setReset(state) {

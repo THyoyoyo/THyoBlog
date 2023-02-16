@@ -57,6 +57,21 @@ export default {
           store.commit("setReset");
           TElNotification("登录成功！");
           store.commit("setUserInfo", res.data);
+
+          //  权限分离
+          let authorityBtnList = [];
+          res.data.menus = res.data.menus.filter((v) => {
+            v.childs = v.childs.filter((v2) => {
+              if (v2.type == 2) {
+                authorityBtnList.push(v2);
+              }
+              return v2.type == 1;
+            });
+            if (v.type == 2) {
+              authorityBtnList.push(v);
+            }
+            return v.type == 1;
+          });
           // 权限配置
           let authority = {};
           res.data.menus.forEach((v) => {
@@ -66,6 +81,7 @@ export default {
             });
           });
           store.commit("setAuthority", authority);
+          store.commit("setAuthorityBtn", authorityBtnList);
           router.push("/admin");
         } else {
           ElMessageBox.confirm(`Sorry,${res.message}`, "网站提示", {

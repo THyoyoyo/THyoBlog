@@ -91,7 +91,11 @@
       <el-table-column prop="creationTime" label="创建时间" width="200" />
       <el-table-column prop="" label="操作" align="right">
         <template #header>
-          <el-button size="small" type="success" @click="showarticleBox(1)"
+          <el-button
+            size="small"
+            type="success"
+            @click="showarticleBox(1)"
+            v-auth="'newArticleBtn'"
             >创建文章</el-button
           >
         </template>
