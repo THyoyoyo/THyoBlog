@@ -118,7 +118,7 @@
 <script>
 import { Plus, Search } from "@element-plus/icons";
 import { reactive, ref, toRefs } from "vue";
-import uploadFiles from "../../utils/uploadFiles";
+import uploadFiles, { uploadFilledNew } from "../../utils/uploadFiles";
 import { ElLoading } from "element-plus";
 import {
   savaUpLoadWebFile,
@@ -126,6 +126,7 @@ import {
   editByIdFile,
   delByIdFile,
 } from "../../api/system";
+import { getQlyToken } from "../../api/comm";
 import { TElNotification } from "../../utils/inform";
 export default {
   components: {
@@ -174,22 +175,13 @@ export default {
           text: "资源上传中...",
           target: document.querySelector(".resourceBox"),
         });
-        Promise.all(
-          upFileList.map((v) => {
-            return new Promise((resolve, reject) => {
-              uploadFiles(v.file).then((res) => {
-                resolve({
-                  name: v.file.name,
-                  type: v.file.name.slice(v.file.name.indexOf(".") + 1),
-                  url: process.env.VUE_APP_QIN_NIU_CDN + res.key,
-                });
-              });
-            });
-          })
-        ).then((arr) => {
-          upFileList = [];
-          formFileList.value = [...formFileList.value, ...arr];
-          loadingInstance1.close();
+        // 获取七牛云KEY
+        getQlyToken().then((res) => {
+          uploadFilledNew(res, upFileList).then((arr) => {
+            upFileList = [];
+            formFileList.value = [...arr, ...formFileList.value];
+            loadingInstance1.close();
+          });
         });
       }, 200);
     };
@@ -204,6 +196,7 @@ export default {
       savaUpLoadWebFile({ urlList: formFileList.value }).then((res) => {
         if (res.code == 200) {
           TElNotification("上传成功！");
+          loadList();
           resourceBox.state = false;
           formFileList.value = [];
         }
