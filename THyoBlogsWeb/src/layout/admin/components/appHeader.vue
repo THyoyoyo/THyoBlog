@@ -3,8 +3,8 @@
     <p class="title"></p>
 
     <div class="colseBtn">
-      <div class="colseBtn" @click="userLogin()">登录</div>
-      <div class="colseBtn" @click="out()">退出</div>
+ 
+      <div class="colseBtn" @click="out()">退出系统</div>
     </div>
   </div>
 </template>

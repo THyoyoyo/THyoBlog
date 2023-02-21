@@ -1,4 +1,4 @@
-package com.blogs.model.common;
+package com.blogs.model.expressTools;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import io.swagger.annotations.ApiModelProperty;
