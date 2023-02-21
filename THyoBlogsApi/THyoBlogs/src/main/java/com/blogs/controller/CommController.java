@@ -2,6 +2,7 @@ package com.blogs.controller;
 
 
 import com.alibaba.fastjson.JSON;
+import com.blogs.annotation.Token;
 import com.blogs.model.common.Translate;
 import com.blogs.service.CommService;
 import com.blogs.util.MD5;
@@ -49,6 +50,7 @@ public class CommController {
 
     @ApiOperation(value = "百度翻译")
     @PostMapping("/getTranslate")
+    @Token
     public R getTranslate(@RequestBody Translate dto){
         String text = dto.getText();
         //公共值
