@@ -12,6 +12,12 @@ spring:
       matching-strategy: ant_path_matcher
   main:
     allow-bean-definition-overriding: true
+  mail:
+    host: smtp.qq.com
+    username: 3374043477@qq.com
+    password: pfxkzcerlclndbje
+    protocol: smtp
+    port: 587
 
 mybatis-plus:
   mapper-locations: classpath:com/blogs/mapper/*.xml
