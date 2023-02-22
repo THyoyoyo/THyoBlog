@@ -1,36 +1,18 @@
 package com.blogs.controller;
 
 
-import com.alibaba.fastjson.JSON;
-import com.blogs.annotation.Token;
 import com.blogs.model.expressTools.Botany;
+import com.blogs.model.expressTools.OkHttpMethod;
 import com.blogs.model.expressTools.Translate;
 import com.blogs.model.expressTools.UpMail;
 import com.blogs.service.ExpressToolsService;
-import com.blogs.util.MD5;
 import com.blogs.vo.common.R;
-import com.sun.xml.internal.ws.api.model.ExceptionType;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.bind.annotation.*;
 
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -38,15 +20,9 @@ import java.util.Map;
 @Api(tags = "扩展工具")
 public class ExpressToolsController {
 
-
-    @Autowired
-    private JavaMailSender mailSender;
-
     @Autowired
     private ExpressToolsService expressToolsService;
 
-    @Value("${spring.mail.username}")
-    private String from;
 
     @ApiOperation(value = "百度翻译")
     @PostMapping("/getTranslate")
@@ -77,7 +53,7 @@ public class ExpressToolsController {
 
     @ApiOperation(value = "发送邮件(文字版)")
     @PostMapping("/upMail")
-    public R upMail(@RequestBody UpMail dto) throws MessagingException {
+    public R upMail(@RequestBody UpMail dto) {
         try {
             expressToolsService.upMail(dto);
             return  R.succeed();
@@ -87,16 +63,50 @@ public class ExpressToolsController {
         }
     }
 
-
     @ApiOperation(value = "发送邮件（富文本）")
     @PostMapping("upMailHtml")
-    public R upMailHtml(@RequestBody UpMail dto) throws MessagingException {
+    public R upMailHtml(@RequestBody UpMail dto) {
         try {
             expressToolsService.upMailHtml(dto);
             return R.succeed();
         }catch (Exception e){
             System.out.println(e);
             return  R.failed(404,"邮件发送失败");
+        }
+    }
+
+    @ApiOperation(value = "OkHttp发送请求get/post(value必须是字符串)")
+    @PostMapping("/okHttpGetMethod")
+    public Object okHttpGetMethod(@RequestBody OkHttpMethod dto){
+        Object  data = null;
+          try {
+              data = expressToolsService.okHttpMethod(dto);
+              if(data ==null){
+                  return R.succeed(200,"没有获取到任何数据");
+              }
+              return data;
+          }catch (Exception e){
+             return R.failed(404,"请重新尝试");
+          }
+
+    }
+
+    @ApiOperation(value = "获取QQ头像昵称")
+    @GetMapping("/getQinfo")
+    public R getQinfo(@RequestParam String qq){
+        String KEY = "VFR6AzQbrG9eyAbFqt5wDUfHV9";
+        OkHttpMethod okHttpMethod = new OkHttpMethod();
+        okHttpMethod.setUrl("https://qqlykm.cn/api/qqobtain/get");
+        okHttpMethod.setMethod("get");
+        HashMap<String, String> param = new HashMap<>();
+        param.put("key",KEY);
+        param.put("qq",qq);
+        okHttpMethod.setParam(param);
+        try {
+            Object o = expressToolsService.okHttpMethod(okHttpMethod);
+            return  R.succeed(o);
+        }catch (Exception e){
+            return R.failed(404,"接口错误，请稍后再试");
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.blogs.service;
 
 import com.blogs.model.expressTools.Botany;
+import com.blogs.model.expressTools.OkHttpMethod;
 import com.blogs.model.expressTools.Translate;
 import com.blogs.model.expressTools.UpMail;
 
@@ -15,4 +16,7 @@ public interface ExpressToolsService {
     public void upMail(UpMail upMail);
 
     public void upMailHtml(UpMail upMail) throws MessagingException;
+
+
+    public Object okHttpMethod(OkHttpMethod okHttpMethod);
 }

@@ -2,11 +2,12 @@ package com.blogs.service.imlp;
 
 import com.alibaba.fastjson.JSON;
 import com.blogs.model.expressTools.Botany;
+import com.blogs.model.expressTools.OkHttpMethod;
 import com.blogs.model.expressTools.Translate;
 import com.blogs.model.expressTools.UpMail;
 import com.blogs.service.ExpressToolsService;
 import com.blogs.util.MD5;
-import com.blogs.vo.common.R;
+import com.blogs.util.OkHttpUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -134,4 +135,29 @@ public class ExpressToolsServiceImpl implements ExpressToolsService {
         messageHelper.setFrom(from);//发送的邮箱
         mailSender.send(mimeMessage);
     }
+
+    @Override
+    public Object okHttpMethod(OkHttpMethod okHttpMethod) {
+
+         if(okHttpMethod.getMethod().equals("get")){
+             String sync = OkHttpUtils.builder().url(okHttpMethod.getUrl())
+                     .addHeader(okHttpMethod.getHeader())
+                     .addParam(okHttpMethod.getParam())
+                     .get()
+                     .sync();
+             return JSON.parse(sync);
+         }
+
+
+         if(okHttpMethod.getMethod().equals("post")){
+              String sync = OkHttpUtils.builder().url(okHttpMethod.getUrl())
+                            .addHeader(okHttpMethod.getHeader())
+                            .addParam(okHttpMethod.getParam())
+                            .post(true) // true 为json提交方式
+                            .sync();
+             return JSON.parse(sync);
+         }
+        return null;
+    }
+
 }
