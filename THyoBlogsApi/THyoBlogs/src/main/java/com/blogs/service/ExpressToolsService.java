@@ -1,6 +1,6 @@
 package com.blogs.service;
 
-import com.blogs.model.expressTools.Botany;
+import com.blogs.model.expressTools.ImageScan;
 import com.blogs.model.expressTools.OkHttpMethod;
 import com.blogs.model.expressTools.Translate;
 import com.blogs.model.expressTools.UpMail;
@@ -11,7 +11,7 @@ import java.util.Map;
 public interface ExpressToolsService {
     public Map<String, Object> getTranslate(Translate translate);
 
-    public Map<String, Object> getBotany(Botany botany);
+    public Map<String, Object> getImageScan(ImageScan imageScan);
 
     public void upMail(UpMail upMail);
 

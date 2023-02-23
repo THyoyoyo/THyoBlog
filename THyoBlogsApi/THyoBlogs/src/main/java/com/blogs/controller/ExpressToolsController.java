@@ -1,7 +1,7 @@
 package com.blogs.controller;
 
 
-import com.blogs.model.expressTools.Botany;
+import com.blogs.model.expressTools.ImageScan;
 import com.blogs.model.expressTools.OkHttpMethod;
 import com.blogs.model.expressTools.Translate;
 import com.blogs.model.expressTools.UpMail;
@@ -40,12 +40,17 @@ public class ExpressToolsController {
     }
 
 
-    @ApiOperation(value = "植物图片识别")
-    @PostMapping("/getBotany")
-    public R getBotany(@RequestBody Botany dto) {
+    @ApiOperation(value = "图片识别")
+    @PostMapping("/getImageScan")
+    public R getBotany(@RequestBody ImageScan dto) {
         try {
-            Map<String, Object> botany = expressToolsService.getBotany(dto);
-            return R.succeed(botany);
+            Map<String, Object> imageScan = expressToolsService.getImageScan(dto);
+            if (imageScan !=null){
+                return R.succeed(imageScan);
+            }else {
+                return R.succeed(201,"识别失败,请检查图片或参数再进行尝试");
+            }
+
         } catch (Throwable e) {
             return R.failed(403, "发生错误,请稍后再试");
         }

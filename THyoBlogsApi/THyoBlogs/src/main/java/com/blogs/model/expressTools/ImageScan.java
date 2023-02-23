@@ -7,7 +7,7 @@ import lombok.Data;
 
 @Data
 public class ImageScan {
-    @ApiModelProperty(value = "1:植物识别,2：通用物体和场景识别")
+    @ApiModelProperty(value = "1:植物识别,2：通用物体和场景识别,3:动物识别")
     private String type;
 
     @ApiModelProperty(value = "图片网络链接(二选一)")

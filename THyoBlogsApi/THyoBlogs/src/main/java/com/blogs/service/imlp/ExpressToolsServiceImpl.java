@@ -1,7 +1,7 @@
 package com.blogs.service.imlp;
 
 import com.alibaba.fastjson.JSON;
-import com.blogs.model.expressTools.Botany;
+import com.blogs.model.expressTools.ImageScan;
 import com.blogs.model.expressTools.OkHttpMethod;
 import com.blogs.model.expressTools.Translate;
 import com.blogs.model.expressTools.UpMail;
@@ -24,6 +24,7 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+import java.util.HashMap;
 import java.util.Map;
 
 
@@ -71,13 +72,18 @@ public class ExpressToolsServiceImpl implements ExpressToolsService {
     }
 
     @Override
-    public Map<String, Object> getBotany(Botany botany) {
+    public Map<String, Object> getImageScan(ImageScan imageScan) {
+        HashMap<String, String> urlMap = new HashMap<>();
+        urlMap.put("1","https://aip.baidubce.com/rest/2.0/image-classify/v1/plant?access_token=");
+        urlMap.put("2","https://aip.baidubce.com/rest/2.0/image-classify/v2/advanced_general?access_token=");
+        urlMap.put("3","https://aip.baidubce.com/rest/2.0/image-classify/v1/animal?access_token=");
+
         String API_Key = "FHSV4NooLfsVTm8sKxjc3Zso";
         String Secret_Key = "zsvQGcqdAMFbWXPH5dX1jGpEf0XoZLRU";
         String AccessTokenUrl = "https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials" + "&client_id=" + API_Key + "&client_secret=" + Secret_Key;
 
-        String imgUrl = botany.getImgUrl();
-        String imgBase64 = botany.getImgBase64();
+        String imgUrl = imageScan.getImgUrl();
+        String imgBase64 = imageScan.getImgBase64();
         //Post-AccessToken
         RestTemplate tokenRestTemplate = new RestTemplate();
         HttpHeaders tokenHeaders = new HttpHeaders();
@@ -88,7 +94,11 @@ public class ExpressToolsServiceImpl implements ExpressToolsService {
 
         //权限token
         String accessToken = tokenParse.get("access_token").toString();
-        String plantUrl = "https://aip.baidubce.com/rest/2.0/image-classify/v1/plant?access_token=" + accessToken;
+        //判断类型是否存在
+        if( imageScan.getType() == null || urlMap.get(imageScan.getType()) == null ){
+            return null;
+        }
+        String plantUrl =urlMap.get(imageScan.getType()) + accessToken;
 
         RestTemplate plantRestTemplate = new RestTemplate();
         HttpHeaders plantHeaders = new HttpHeaders();
@@ -96,7 +106,7 @@ public class ExpressToolsServiceImpl implements ExpressToolsService {
 
         MultiValueMap<String, String> multiValueMap = new LinkedMultiValueMap<>();
 
-        if(botany.getImgUrl() != null){
+        if(imageScan.getImgUrl() != null){
             multiValueMap.add("url", imgUrl);
         }
 
@@ -104,7 +114,7 @@ public class ExpressToolsServiceImpl implements ExpressToolsService {
             multiValueMap.add("image", imgBase64);
         }
 
-        if(botany.getBaikeNum() != null ){
+        if(imageScan.getBaikeNum() != null ){
             multiValueMap.add("baike_num", "1");
         }
 
