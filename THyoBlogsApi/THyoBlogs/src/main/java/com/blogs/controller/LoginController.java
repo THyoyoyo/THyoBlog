@@ -104,16 +104,19 @@ public class LoginController {
          if(atTime - time >100){
              return  R.failed(404,"错误,请重新尝试登录");
          }
+
+        Map<String,String> qqInfo = (Map<String,String>)expressToolsService.getQqInfo(qq);
+        if(qqInfo.get("status").equals("error")){
+            return R.failed(404,"未获取到QQ任何信息,请重新输入");
+        }
+
         //查找用户是否已存在
         QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
         userQueryWrapper.eq("account",qq).last("LIMIT 0,1");
         User user = userMapper.selectOne(userQueryWrapper);
 
         if (user == null){
-            Map<String,String> qqInfo = (Map<String,String>)expressToolsService.getQqInfo(qq);
-            if(qqInfo.get("status").equals("error")){
-                return R.failed(404,"未获取到QQ任何信息,请重新输入");
-            }
+            //新建
             user = new User();
             user.setAccount(qq);
             user.setHead(qqInfo.get("headimg"));
@@ -123,6 +126,12 @@ public class LoginController {
             user.setRoleId(8);
             user.setCreationTime(new Date());
             userMapper.insert(user);
+        }else {
+            //只有游客角色 才更新
+            if (user.getRoleId().equals(8)){
+                user.setHead(qqInfo.get("headimg"));
+                user.setName(qqInfo.get("nickname"));
+            }
         }
         ReturnUserLoginInfoVo returnUserLoginInfoVo = new ReturnUserLoginInfoVo();
         BeanUtils.copyProperties(user,returnUserLoginInfoVo);

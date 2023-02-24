@@ -34,6 +34,24 @@
         </div>
         <div id="wangEditor"></div>
         <div class="wangEditor-btn">
+          <div class="user-info-qq">
+            <img :src="userQqInfo.head" alt="" />
+            <el-dropdown>
+              <span class="el-dropdown-link">
+                {{ userQqInfo.name }}
+                <el-icon class="el-icon--right">
+                  <arrow-down />
+                </el-icon>
+              </span>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item @click="clearLoginQq()"
+                    >清空QQ登录信息</el-dropdown-item
+                  >
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
+          </div>
           <el-button type="primary" class="web-font" @click="userPushComment()"
             >发表评论</el-button
           >
@@ -53,8 +71,9 @@
             >
               <el-card>
                 <h4>
+                  <img style="height: 30px" :src="item.head" alt="" />
                   {{ item.userName }}
-                  <span v-if="item.userId == 2"> ({{ item.ip }})</span>
+                  <span> ({{ item.ip }})</span>
                 </h4>
                 <div class="detalis-commment-ctx" v-html="item.content"></div>
                 <div class="detalis-commment-other">
@@ -73,8 +92,9 @@
                     >
                       <el-card>
                         <h4>
+                          <img style="height: 30px" :src="item.head" alt="" />
                           {{ item.userName }}
-                          <span v-if="item.userId == 2"> ({{ item.ip }})</span>
+                          <span> ({{ item.ip }})</span>
                         </h4>
                         <div
                           class="detalis-commment-ctx"
@@ -96,9 +116,7 @@
           <el-input v-model="qq" placeholder="QQ号" />
           <div class="detalis-comment-mark-button">
             <el-button type="primary" @click="userLoginQq()">登录</el-button>
-            <el-button type="primary" @click="clearLoginQq()"
-              >游客访问</el-button
-            >
+            <el-button type="primary" @click="setGuest()">游客访问</el-button>
           </div>
         </div>
       </div>
@@ -111,9 +129,13 @@ import { useRoute, useRouter } from "vue-router";
 import { articInfo, getCommentById, pushComment } from "../../api/article";
 import { getQqInfo } from "../../api/expressTools";
 import { userLoginFromQq } from "../../api/login";
-import { TElMessage } from "../../utils/inform";
+import { TElMessage, TElNotification } from "../../utils/inform";
 import { useStore } from "vuex";
+import { ArrowDown } from "@element-plus/icons";
 export default {
+  components: {
+    ArrowDown,
+  },
   setup(props) {
     const route = useRoute();
     const router = useRouter();
@@ -172,7 +194,7 @@ export default {
       let data = {
         articleId: state.info.id,
         content: div.innerHTML,
-        userId: 2,
+        userId: store.state.userQqInfo.id,
       };
       if (parentId) {
         data.parentId = parentId;
@@ -208,16 +230,28 @@ export default {
         if (res.code == 200) {
           res.data.qq = data.qq;
           store.commit("setUserQqInfo", res.data);
+          let _html = `<div style="margin-top: 8px;align-items: center;display: flex;">
+                           <img style="height:30px" src="${res.data.head}" /><span style="font-size:20px;margin-left: 8px;">${res.data.name}</span>
+                       </div>`;
+          TElNotification(_html, "已成功设置QQ", undefined, true);
+          state.qq = "";
         } else {
+          TElMessage(res.message, "warning", 120);
         }
       });
     };
-
+    // 访客模式
+    let setGuest = () => {
+      state.qq = "guest";
+      userLoginQq();
+    };
+    //清除QQ登录状态
     let clearLoginQq = () => {
       store.commit("setUserQqInfo", {});
+      state.qq = "";
     };
-
     return {
+      setGuest,
       clearLoginQq,
       userLoginQq,
       userReplyComment,
@@ -287,7 +321,25 @@ export default {
       padding: 10px 0;
       display: flex;
       justify-content: flex-end;
+      .user-info-qq {
+        display: flex;
+        img {
+          height: 30px;
+        }
+        span {
+          margin-left: 10px;
+          // font-size: 16px;
+        }
+        :deep(.el-dropdown--default) {
+          display: flex;
+          align-items: center;
+          .el-dropdown-link {
+            display: flex;
+          }
+        }
+      }
       :deep(.el-button) {
+        margin-left: 30px;
         background: #97aee9;
         color: #fff;
         border: none;
@@ -318,16 +370,17 @@ export default {
   .detalis-comment-mark-ctx {
     width: 250px;
     background: #e9e9e9bb;
-    padding: 15px;
+    padding: 30px;
     margin: 180px auto 0 auto;
     border-radius: 5px;
     .detalis-comment-mark-title {
       text-align: center;
-      font-size: 16px;
+      font-size: 18px;
+      letter-spacing: 1px;
     }
 
     .el-input {
-      margin: 10px 0;
+      margin: 20px 0;
     }
 
     .detalis-comment-mark-button {

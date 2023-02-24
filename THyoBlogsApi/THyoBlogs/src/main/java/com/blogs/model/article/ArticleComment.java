@@ -54,6 +54,11 @@ public class ArticleComment implements Serializable {
 	@ApiModelProperty(value = "创建昵称")
 	private String userName;
 
+	/** 创建人 */
+	@ApiModelProperty(value = "创建人头像")
+	@TableField(exist = false)
+	private String head;
+
 	/** IP地址 */
 	@ApiModelProperty(value = "IP地址")
 	private String ip;

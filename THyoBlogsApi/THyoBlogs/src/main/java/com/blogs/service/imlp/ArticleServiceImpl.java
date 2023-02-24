@@ -214,9 +214,21 @@ public class ArticleServiceImpl implements ArticleService {
         List<ArticleComment> articleComments = articleCommentMapper.selectList(commentQueryWrapper);
 
         for (ArticleComment articleComment : articleComments) {
+            //评论人
+            User user = userMapper.selectById(articleComment.getUserId());
+            articleComment.setUserName(user.getName());
+            articleComment.setHead(user.getHead());
+
             QueryWrapper<ArticleComment> commentQueryWrapper1 = new QueryWrapper<>();
             commentQueryWrapper1.eq("parent_id",articleComment.getId());
-            articleComment.setReplyList(articleCommentMapper.selectList(commentQueryWrapper1));
+            List<ArticleComment> replyListarticleComments = articleCommentMapper.selectList(commentQueryWrapper1);
+            for (ArticleComment replyListarticleComment : replyListarticleComments) {
+                //评论人
+                User replayUser = userMapper.selectById(replyListarticleComment.getUserId());
+                replyListarticleComment.setUserName(replayUser.getName());
+                replyListarticleComment.setHead(replayUser.getHead());
+            }
+            articleComment.setReplyList(replyListarticleComments);
 
             QueryWrapper<Article> articleQueryWrapper = new QueryWrapper<>();
             articleQueryWrapper.eq("id",articleComment.getArticleId());
