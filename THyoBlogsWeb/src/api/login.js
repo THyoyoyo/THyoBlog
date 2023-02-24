@@ -17,3 +17,15 @@ export function userOut(data) {
         method: 'get',
     })
 }
+
+
+
+// 前端用户通过QQ登录
+export function userLoginFromQq(data) {
+    return request({
+        url: `/login/userLoginFromQq`,
+        method: 'get',
+        params: data
+    })
+}
+

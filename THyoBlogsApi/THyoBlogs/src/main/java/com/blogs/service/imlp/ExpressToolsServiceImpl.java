@@ -8,6 +8,7 @@ import com.blogs.model.expressTools.UpMail;
 import com.blogs.service.ExpressToolsService;
 import com.blogs.util.MD5;
 import com.blogs.util.OkHttpUtils;
+import com.blogs.vo.common.R;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -168,6 +169,20 @@ public class ExpressToolsServiceImpl implements ExpressToolsService {
              return JSON.parse(sync);
          }
         return null;
+    }
+
+    @Override
+    public Object getQqInfo(String qq) {
+        String KEY = "VFR6AzQbrG9eyAbFqt5wDUfHV9";
+        OkHttpMethod okHttpMethod = new OkHttpMethod();
+        okHttpMethod.setUrl("https://qqlykm.cn/api/qqobtain/get");
+        okHttpMethod.setMethod("get");
+        HashMap<String, String> param = new HashMap<>();
+        param.put("key",KEY);
+        param.put("qq",qq);
+        okHttpMethod.setParam(param);
+        Object o = this.okHttpMethod(okHttpMethod);
+        return o;
     }
 
 }

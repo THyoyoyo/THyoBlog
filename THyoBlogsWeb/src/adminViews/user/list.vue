@@ -41,7 +41,7 @@
       <el-table-column prop="head" label="头像" width="70" align="center">
         <template #default="scoped">
           <div class="tableHeadBox">
-            <img :src="scoped.row.head + '?imageView2/2/w/200/h/200/q/75'" />
+            <img :src="ossImgAddPar(scoped.row.head)" />
           </div>
         </template>
       </el-table-column>
@@ -99,7 +99,7 @@
               >
                 <img
                   v-if="userForm.head"
-                  :src="userForm.head + '?imageView2/2/w/200/h/200/q/75'"
+                  :src="ossImgAddPar(userForm.head)"
                   class="avatar"
                 />
                 <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
@@ -286,7 +286,17 @@ export default {
       state.roleList = res.data;
     });
     getSystemRoleList();
+
+    // oss图像是否添加参数
+    let ossImgAddPar = (url) => {
+      if (url.indexOf("http://image.thyo.xyz") != -1) {
+        return url + "?imageView2/2/w/200/h/200/q/75";
+      } else {
+        return url;
+      }
+    };
     return {
+      ossImgAddPar,
       ...toRefs(state),
       formInline,
       onSubmit,

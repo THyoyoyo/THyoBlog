@@ -19,4 +19,6 @@ public interface ExpressToolsService {
 
 
     public Object okHttpMethod(OkHttpMethod okHttpMethod);
+
+    public Object getQqInfo(String qq);
 }

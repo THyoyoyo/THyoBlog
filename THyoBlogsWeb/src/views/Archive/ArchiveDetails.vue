@@ -28,82 +28,102 @@
     </div>
     <!-- 评论 -->
     <div class="detalis-comment">
-      <div class="detalis-comment-title web-font">
-        <i class="iconfont icon-atm"></i> 发表评论
-      </div>
-      <div id="wangEditor"></div>
-      <div class="wangEditor-btn">
-        <el-button type="primary" class="web-font" @click="userPushComment()"
-          >发表评论</el-button
-        >
-      </div>
-      <div class="detalis-comment-title web-font">
-        <i class="iconfont icon-atm-away"></i> 精彩评价
-      </div>
-      <!-- 用户评价 -->
-      <div class="detalis-comment-user">
-        <el-timeline>
-          <el-timeline-item
-            :timestamp="item.creationTime"
-            placement="top"
-            color="#bbcaf0"
-            v-for="(item, key) in commentlist"
-            :key="key"
+      <div :style="{ filter: userQqInfo.qq ? 'none' : 'blur(2px)' }">
+        <div class="detalis-comment-title web-font">
+          <i class="iconfont icon-atm"></i> 发表评论
+        </div>
+        <div id="wangEditor"></div>
+        <div class="wangEditor-btn">
+          <el-button type="primary" class="web-font" @click="userPushComment()"
+            >发表评论</el-button
           >
-            <el-card>
-              <h4>
-                {{ item.userName }}
-                <span v-if="item.userId == 2"> ({{ item.ip }})</span>
-              </h4>
-              <div class="detalis-commment-ctx" v-html="item.content"></div>
-              <div class="detalis-commment-other">
-                <el-button type="primary" @click="userReplyComment(item)"
-                  >回复评论</el-button
-                >
-              </div>
-              <div class="reply" v-if="item.replyList.length > 0">
-                <el-timeline>
-                  <el-timeline-item
-                    :timestamp="item.creationTime"
-                    placement="top"
-                    color="#bbcaf0"
-                    v-for="(item, key) in item.replyList"
-                    :key="key"
+        </div>
+        <div class="detalis-comment-title web-font">
+          <i class="iconfont icon-atm-away"></i> 精彩评价
+        </div>
+        <!-- 用户评价 -->
+        <div class="detalis-comment-user">
+          <el-timeline>
+            <el-timeline-item
+              :timestamp="item.creationTime"
+              placement="top"
+              color="#bbcaf0"
+              v-for="(item, key) in commentlist"
+              :key="key"
+            >
+              <el-card>
+                <h4>
+                  {{ item.userName }}
+                  <span v-if="item.userId == 2"> ({{ item.ip }})</span>
+                </h4>
+                <div class="detalis-commment-ctx" v-html="item.content"></div>
+                <div class="detalis-commment-other">
+                  <el-button type="primary" @click="userReplyComment(item)"
+                    >回复评论</el-button
                   >
-                    <el-card>
-                      <h4>
-                        {{ item.userName }}
-                        <span v-if="item.userId == 2"> ({{ item.ip }})</span>
-                      </h4>
-                      <div
-                        class="detalis-commment-ctx"
-                        v-html="item.content"
-                      ></div>
-                    </el-card>
-                  </el-timeline-item>
-                </el-timeline>
-              </div>
-            </el-card>
-          </el-timeline-item>
-        </el-timeline>
+                </div>
+                <div class="reply" v-if="item.replyList.length > 0">
+                  <el-timeline>
+                    <el-timeline-item
+                      :timestamp="item.creationTime"
+                      placement="top"
+                      color="#bbcaf0"
+                      v-for="(item, key) in item.replyList"
+                      :key="key"
+                    >
+                      <el-card>
+                        <h4>
+                          {{ item.userName }}
+                          <span v-if="item.userId == 2"> ({{ item.ip }})</span>
+                        </h4>
+                        <div
+                          class="detalis-commment-ctx"
+                          v-html="item.content"
+                        ></div>
+                      </el-card>
+                    </el-timeline-item>
+                  </el-timeline>
+                </div>
+              </el-card>
+            </el-timeline-item>
+          </el-timeline>
+        </div>
+      </div>
+      <!-- 未登录遮罩层 -->
+      <div class="detalis-comment-mark" v-if="!userQqInfo.qq">
+        <div class="detalis-comment-mark-ctx">
+          <p class="detalis-comment-mark-title">请输入QQ号完成登录</p>
+          <el-input v-model="qq" placeholder="QQ号" />
+          <div class="detalis-comment-mark-button">
+            <el-button type="primary" @click="userLoginQq()">登录</el-button>
+            <el-button type="primary" @click="clearLoginQq()"
+              >游客访问</el-button
+            >
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 <script>
-import { onMounted, reactive, toRefs } from "vue";
+import { onMounted, reactive, toRefs, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { articInfo, getCommentById, pushComment } from "../../api/article";
+import { getQqInfo } from "../../api/expressTools";
+import { userLoginFromQq } from "../../api/login";
 import { TElMessage } from "../../utils/inform";
+import { useStore } from "vuex";
 export default {
   setup(props) {
     const route = useRoute();
     const router = useRouter();
+    const store = useStore();
     let archiveId = route.query.id;
     let state = reactive({
       info: {},
       commentlist: [],
       brief: "",
+      qq: "",
     });
     // 获取文章详情
     articInfo({ id: archiveId }).then((res) => {
@@ -177,10 +197,33 @@ export default {
 
       document.querySelector("#detalis-labels").scrollIntoView(true);
     };
+
+    // 用户QQ登录
+    let userLoginQq = () => {
+      let data = {
+        qq: state.qq,
+        time: new Date().getTime(),
+      };
+      userLoginFromQq(data).then((res) => {
+        if (res.code == 200) {
+          res.data.qq = data.qq;
+          store.commit("setUserQqInfo", res.data);
+        } else {
+        }
+      });
+    };
+
+    let clearLoginQq = () => {
+      store.commit("setUserQqInfo", {});
+    };
+
     return {
+      clearLoginQq,
+      userLoginQq,
       userReplyComment,
       userPushComment,
       ...toRefs(state),
+      userQqInfo: computed(() => store.state.userQqInfo),
     };
   },
 };
@@ -226,6 +269,7 @@ export default {
     }
   }
   .detalis-comment {
+    position: relative;
     margin-top: 30px;
     .detalis-comment-title {
       font-weight: 700;
@@ -252,6 +296,13 @@ export default {
         }
       }
     }
+    .detalis-comment-mark {
+      z-index: 99999;
+      position: absolute;
+      top: 0;
+      width: 100%;
+      height: 100%;
+    }
   }
   .reply {
     margin-top: 50px;
@@ -262,6 +313,28 @@ export default {
     > button {
       background: #97aee9;
       border: none;
+    }
+  }
+  .detalis-comment-mark-ctx {
+    width: 250px;
+    background: #e9e9e9bb;
+    padding: 15px;
+    margin: 180px auto 0 auto;
+    border-radius: 5px;
+    .detalis-comment-mark-title {
+      text-align: center;
+      font-size: 16px;
+    }
+
+    .el-input {
+      margin: 10px 0;
+    }
+
+    .detalis-comment-mark-button {
+      display: flex;
+      justify-content: space-around;
+      .el-button {
+      }
     }
   }
 }

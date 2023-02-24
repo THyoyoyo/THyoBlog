@@ -99,16 +99,8 @@ public class ExpressToolsController {
     @ApiOperation(value = "获取QQ头像昵称")
     @GetMapping("/getQinfo")
     public R getQinfo(@RequestParam String qq){
-        String KEY = "VFR6AzQbrG9eyAbFqt5wDUfHV9";
-        OkHttpMethod okHttpMethod = new OkHttpMethod();
-        okHttpMethod.setUrl("https://qqlykm.cn/api/qqobtain/get");
-        okHttpMethod.setMethod("get");
-        HashMap<String, String> param = new HashMap<>();
-        param.put("key",KEY);
-        param.put("qq",qq);
-        okHttpMethod.setParam(param);
         try {
-            Object o = expressToolsService.okHttpMethod(okHttpMethod);
+            Object o = expressToolsService.getQqInfo(qq);
             return  R.succeed(o);
         }catch (Exception e){
             return R.failed(404,"接口错误，请稍后再试");
