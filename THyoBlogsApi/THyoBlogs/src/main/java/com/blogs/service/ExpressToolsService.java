@@ -1,9 +1,6 @@
 package com.blogs.service;
 
-import com.blogs.model.expressTools.ImageScan;
-import com.blogs.model.expressTools.OkHttpMethod;
-import com.blogs.model.expressTools.Translate;
-import com.blogs.model.expressTools.UpMail;
+import com.blogs.model.expressTools.*;
 
 import javax.mail.MessagingException;
 import java.util.Map;
@@ -21,4 +18,8 @@ public interface ExpressToolsService {
     public Object okHttpMethod(OkHttpMethod okHttpMethod);
 
     public Object getQqInfo(String qq);
+
+    public Map<String, Object> stopTyTime(StopTyTime stopTyTime);
+
+    public Object getTyUserInfoByToken(String token);
 }

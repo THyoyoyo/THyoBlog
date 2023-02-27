@@ -32,7 +32,7 @@ public class TyUserInfo implements Serializable {
 
 	/** 腾游用户id */
 	@ApiModelProperty(value = "腾游用户id")
-	private Integer userId;
+	private String userId;
 
 	/** 腾游用户token */
 	@ApiModelProperty(value = "腾游用户token")
@@ -41,6 +41,15 @@ public class TyUserInfo implements Serializable {
 	/** 其他信息 */
 	@ApiModelProperty(value = "其他信息")
 	private String json;
+
+
+	/** 其他信息 */
+	@ApiModelProperty(value = "密码")
+	private String password;
+
+	/** 其他信息 */
+	@ApiModelProperty(value = "状态: 0 关闭 1启动")
+	private Integer state;
 
 	/** 创建时间 */
 	@ApiModelProperty(value = "创建时间")

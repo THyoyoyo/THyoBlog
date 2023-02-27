@@ -1,10 +1,7 @@
 package com.blogs.controller;
 
 
-import com.blogs.model.expressTools.ImageScan;
-import com.blogs.model.expressTools.OkHttpMethod;
-import com.blogs.model.expressTools.Translate;
-import com.blogs.model.expressTools.UpMail;
+import com.blogs.model.expressTools.*;
 import com.blogs.service.ExpressToolsService;
 import com.blogs.vo.common.R;
 import io.swagger.annotations.Api;
@@ -105,5 +102,25 @@ public class ExpressToolsController {
         }catch (Exception e){
             return R.failed(404,"接口错误，请稍后再试");
         }
+    }
+
+
+    @ApiOperation(value = "腾游加速器时间暂停or开启")
+    @PostMapping("/stopTyTime")
+    public R stopTyTime(@RequestBody StopTyTime stopTyTime){
+        try {
+            Map<String, Object> stringObjectMap = expressToolsService.stopTyTime(stopTyTime);
+            return  R.succeed(stringObjectMap);
+        } catch (Exception e){
+            return R.failed(404,"操作失败,请检查参数是否正确");
+        }
+    }
+
+    @ApiOperation(value = "腾游加速器通过token获取用户信息")
+    @PostMapping("/getTyUserInfoByToken")
+    public R getTyUserInfoByToken(@RequestParam("token") String token){
+
+        Object tyUserInfoByToken = expressToolsService.getTyUserInfoByToken(token);
+        return R.succeed(tyUserInfoByToken);
     }
 }
