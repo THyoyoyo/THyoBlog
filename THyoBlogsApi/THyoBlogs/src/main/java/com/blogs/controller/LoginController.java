@@ -101,8 +101,9 @@ public class LoginController {
     @ApiOperation("通过QQ登录")
     public R userLoginFromQq(@RequestParam("qq") String qq,@RequestParam("time") Long time){
         long atTime = new Date().getTime();
-         if(atTime - time >100){
-             return  R.failed(404,"错误,请重新尝试登录");
+         if(atTime - time >1350){
+             String str = "错误,请重新尝试登录" +(atTime - time);
+             return  R.failed(404,str);
          }
 
         Map<String,String> qqInfo = (Map<String,String>)expressToolsService.getQqInfo(qq);

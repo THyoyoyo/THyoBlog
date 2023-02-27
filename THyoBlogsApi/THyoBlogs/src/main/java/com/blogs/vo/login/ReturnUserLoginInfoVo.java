@@ -7,6 +7,5 @@ import lombok.Data;
 public class ReturnUserLoginInfoVo {
     private String head;
     private String name;
-
     private Integer id;
 }
