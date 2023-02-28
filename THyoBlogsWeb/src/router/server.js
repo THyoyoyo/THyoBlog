@@ -33,5 +33,11 @@ export const serverRouter = [
         name: "AboutMe",
         component: () => import('../views/AboutMe.vue'),
         meta: { index: 1 }
+    },
+    {
+        path: "tyGame",
+        name: "tyGame",
+        component: () => import('../views/TyGame.vue'),
+        meta: { index: 1 }
     }
 ]
