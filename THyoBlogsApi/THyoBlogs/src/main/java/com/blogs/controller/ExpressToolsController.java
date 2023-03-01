@@ -105,16 +105,7 @@ public class ExpressToolsController {
     }
 
 
-    @ApiOperation(value = "腾游加速器时间暂停or开启")
-    @PostMapping("/stopTyTime")
-    public R stopTyTime(@RequestBody StopTyTime stopTyTime){
-        try {
-            Map<String, Object> stringObjectMap = expressToolsService.stopTyTime(stopTyTime);
-            return  R.succeed(stringObjectMap);
-        } catch (Exception e){
-            return R.failed(404,"操作失败,请检查参数是否正确");
-        }
-    }
+
 
     @ApiOperation(value = "腾游加速器通过token获取用户信息")
     @PostMapping("/getTyUserInfoByToken")

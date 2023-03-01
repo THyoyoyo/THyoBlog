@@ -55,4 +55,16 @@ public class TyUserInfo implements Serializable {
 	@ApiModelProperty(value = "创建时间")
 	private Date created;
 
+
+	/** qq */
+	@ApiModelProperty(value = "qq")
+	private String qq;
+
+
+	/** 自动暂停时间 */
+	@ApiModelProperty(value = "自动暂停时间")
+	private String autoCloseTime;
+
+
+
 }
