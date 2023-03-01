@@ -2,25 +2,42 @@
   <div class="tyGame">
     <div class="tyGame-header top-padding" ref="homeHeader"></div>
     <div class="tyGame-ctx">
-      <div class="tool"></div>
-      <div class="account">
-        <div
-          class="account-item account-item-my"
-          v-for="(item, key) in 1"
-          :key="key"
+      <div class="tool">
+        <el-button
+          type="primary"
+          size="large"
+          color="#000000"
+          @click="tyGameBox.state = true"
+          >就 现 在 , 立 刻 加 入 ！</el-button
         >
-          <img
-            src="http://image.thyo.xyz/img/c568965f-8a5d-40d4-3a37-917b6d6cf2c2?imageView2/2/w/200/h/200/q/75"
-            alt=""
-          />
-          <p>THyo</p>
-          <p>ID:6307548385280</p>
-          <p>自动监测中</p>
-          <p>2023-2-28 15:42:19</p>
+      </div>
+      <div class="account">
+        <div class="account-item" v-for="(item, key) in tableData" :key="key">
+          <img :src="item.qqImg" alt="" />
+          <p>{{ item.qqName }}</p>
+          <p>ID:{{ item.userId }}</p>
+          <p v-if="item.state == 1">自动监测中</p>
+          <p v-else style="color: green">未启动</p>
+          <p>{{ item.created }}</p>
           <div class="item-mark">
-            <el-button type="success">启动监测</el-button>
-            <el-button type="danger">暂停时间</el-button>
-            <el-button type="danger">停止监测</el-button>
+            <el-button type="success" @click="openItemTyGameBox(item)"
+              >编辑信息</el-button
+            >
+            <el-button
+              type="success"
+              v-if="item.state == 0"
+              @click="upCheckStaua(item, 1)"
+              >启动监测</el-button
+            >
+            <el-button
+              type="danger"
+              v-if="item.state == 1"
+              @click="upCheckStaua(item, 0)"
+              >停止监测</el-button
+            >
+            <el-button type="danger" @click="stopTyTime(item)"
+              >暂停时间</el-button
+            >
           </div>
         </div>
       </div>
@@ -32,6 +49,8 @@
       :title="tyGameBox.title"
       width="580px"
       center
+      @close="handleClose"
+      destroy-on-close
     >
       <el-form
         label-width="120px"
@@ -85,7 +104,7 @@
       </el-form>
       <template #footer>
         <span class="dialog-footer">
-          <el-button>取消</el-button>
+          <el-button @click="tyGameBox.state = false">取消</el-button>
           <el-button type="primary" @click="onSubmit(formRef)"
             >提交保存</el-button
           >
@@ -96,6 +115,16 @@
 </template>
 <script>
 import { ref, reactive, toRefs } from "vue";
+import {
+  tyStopTyTimePassWord,
+  tyUpCheck,
+  tyUserList,
+  tyUserSava,
+  checkUserInfo,
+} from "../api/tyGame";
+import { TElMessage } from "../utils/inform";
+import { merge } from "../utils/common";
+import { ElMessage, ElMessageBox } from "element-plus";
 export default {
   setup() {
     let state = reactive({
@@ -105,10 +134,11 @@ export default {
     let tyGameFromData = () => {
       return {
         id: null,
-        autoCloseTime: new Date(2016, 9, 10, 23, 59, 59, 59),
+        autoCloseTime: new Date(2000, 1, 1, 59, 59, 59, 59).getTime(),
         userId: null,
         password: null,
         qq: null,
+        checkPassword: null,
       };
     };
     let tyGameFrom = reactive(tyGameFromData());
@@ -116,20 +146,129 @@ export default {
     // Form
     let tyGameBox = reactive({
       state: false,
-      title: "新增-腾游用户",
+      title: "新增-腾游监控用户",
     });
+
+    // 弹窗关闭
+    const handleClose = () => {
+      merge(tyGameFrom, tyGameFromData());
+    };
     let formRef = ref(null);
+
+    // 就现在立刻加入
     const onSubmit = (e) => {
       e.validate((valid) => {
         if (valid) {
-          console.log("submit!");
+          tyUserSava(tyGameFrom).then((res) => {
+            if (res.code == 200) {
+              if (tyGameFrom.id) {
+                TElMessage("信息更新成功！");
+              } else {
+                TElMessage("你已成功加入，快去开启吧！");
+              }
+              tyGameBox.state = false;
+              loadList();
+            } else {
+              TElMessage(res.message, "warning");
+            }
+          });
         } else {
-          console.log("error submit!");
+          TElMessage("请填写完整信息", "warning");
           return false;
         }
       });
     };
+
+    //列表加载
+    let loadList = () => {
+      tyUserList().then((res) => {
+        if (res.code == 200) {
+          state.tableData = res.data;
+        }
+      });
+    };
+    loadList();
+
+    //  编辑信息
+    let openItemTyGameBox = (item) => {
+      checkUserPass((val) => {
+        checkUserInfo({ password: val, qq: item.qq }).then((res) => {
+          if (res.code == 200) {
+            tyGameBox.state = true;
+            res.data.autoCloseTime = res.data.autoCloseTime * 1;
+            merge(tyGameFrom, res.data);
+            tyGameFrom.checkPassword = res.data.password;
+          } else {
+            TElMessage(res.message, "warning");
+          }
+        });
+      });
+    };
+
+    //  操作密码确认
+    let checkUserPass = (callback) => {
+      ElMessageBox.prompt("请输入操作密码", "本人确认！", {
+        confirmButtonText: "提交",
+        cancelButtonText: "关闭",
+      })
+        .then(({ value }) => {
+          callback(value);
+        })
+        .catch(() => {});
+    };
+
+    // 编辑自动监测状态
+    let upCheckStaua = (item, state) => {
+      checkUserPass((val) => {
+        checkUserInfo({ password: val, qq: item.qq }).then((res) => {
+          if (res.code == 200) {
+            tyUpCheck({ password: val, qq: item.qq, state }).then((res) => {
+              if (res.code == 200) {
+                if (state == 1) {
+                  TElMessage("已开启，自动监测");
+                }
+                if (state == 0) {
+                  TElMessage("已关闭，自动监测");
+                }
+                loadList();
+              } else {
+                TElMessage(res.message, "warning");
+              }
+            });
+          } else {
+            TElMessage(res.message, "warning");
+          }
+        });
+      });
+    };
+
+    // 腾游账号时间停止停止
+    let stopTyTime = (item) => {
+      checkUserPass((val) => {
+        checkUserInfo({ password: val, qq: item.qq }).then((res) => {
+          if (res.code == 200) {
+            tyStopTyTimePassWord({ password: val, qq: item.qq }).then((res) => {
+              if (res.code == 200) {
+                if (res.data.code == 200) {
+                  TElMessage("加速时间已成功暂停！");
+                }
+                TElMessage(res.data.msg, "warning");
+              } else {
+                TElMessage(res.message, "warning");
+              }
+            });
+          } else {
+            TElMessage(res.message, "warning");
+          }
+        });
+      });
+    };
+
     return {
+      stopTyTime,
+      upCheckStaua,
+      handleClose,
+      openItemTyGameBox,
       formRef,
       onSubmit,
       tyGameBox,
@@ -159,7 +298,15 @@ export default {
       background-position-x: 300%;
     }
   }
-
+  .tool {
+    margin-top: 20px;
+    position: relative;
+    z-index: 2;
+    padding: 0 10px;
+    display: flex;
+    align-items: center;
+    opacity: 0.9;
+  }
   .account {
     position: relative;
     z-index: 1;

@@ -66,5 +66,4 @@ public class TyUserInfo implements Serializable {
 	private String autoCloseTime;
 
 
-
 }
