@@ -39,10 +39,20 @@ public class ScheduledService {
         for (TyUserInfo tyUserInfo : tyUserInfos) {
             //自动暂停时间
             if(tyUserInfo.getState().equals(1)){
+                Integer errNum = tyUserInfo.getErrNum();
+                if(errNum.compareTo(5) > 0){
+                    tyUserInfo.setState(0);
+                }
+
                 StopTyTime stopTyTime = new StopTyTime();
                 stopTyTime.setUserId(tyUserInfo.getUserId());
                 stopTyTime.setStatus(1);
                 Map<String, Object> stringObjectMap = tyGameService.stopTyTime(stopTyTime);
+
+                Integer code = Integer.valueOf(stringObjectMap.get("code").toString());
+                if(code != 200){
+                    tyUserInfo.setErrNum(errNum+1);
+                }
                 tyUserInfoMapper.updateById(tyUserInfo);
             }
         }

@@ -128,6 +128,7 @@ public class TyGameController {
         if (tyUserInfo == null) {
             return R.failed(404, "密码错误");
         }
+        tyUserInfo.setErrNum(0);
         tyUserInfo.setState(state);
         tyUserInfoMapper.updateById(tyUserInfo);
         return R.succeed();

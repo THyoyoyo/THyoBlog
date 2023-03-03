@@ -49,7 +49,12 @@ public class TyUserInfo implements Serializable {
 
 	/** 其他信息 */
 	@ApiModelProperty(value = "状态: 0 关闭 1启动")
-	private Integer state;
+	private Integer state;	/** 其他信息 */
+
+
+	 /**错误次数（启动重置）*/
+	@ApiModelProperty(value = "错误次数（启动重置）")
+	private Integer errNum;
 
 	/** 创建时间 */
 	@ApiModelProperty(value = "创建时间")
@@ -64,6 +69,8 @@ public class TyUserInfo implements Serializable {
 	/** 自动暂停时间 */
 	@ApiModelProperty(value = "自动暂停时间")
 	private String autoCloseTime;
+
+
 
 
 }
