@@ -10,15 +10,26 @@
           @click="tyGameBox.state = true"
           >就 现 在 , 立 刻 加 入 ！</el-button
         >
+        <el-button
+          @click="openWhy()"
+          type="primary"
+          size="large"
+          color="#000000"
+          >这个有什么用？</el-button
+        >
       </div>
       <div class="account">
         <div class="account-item" v-for="(item, key) in tableData" :key="key">
           <img :src="item.qqImg" alt="" />
           <p>{{ item.qqName }}</p>
+          <p>{{ item.qq }}</p>
           <p>ID:{{ item.userId }}</p>
-          <p v-if="item.state == 1">自动监测中</p>
-          <p v-else style="color: green">未启动</p>
-          <p>{{ item.created }}</p>
+          <p>VIP有效时间至：{{ item.userInfo.expired_pc_time }}</p>
+          <p>剩余时间：{{ timeRemaining(item.userInfo.total_minutes) }}</p>
+          <div class="item-footer" :class="item.state == 1 ? 'yes-staua' : ''">
+            <span v-if="item.state == 0">未启动监测</span>
+            <span v-else>已启动监测</span>
+          </div>
           <div class="item-mark">
             <el-button type="success" @click="openItemTyGameBox(item)"
               >编辑信息</el-button
@@ -74,7 +85,7 @@
         </el-form-item>
         <p style="width: 100%; text-align: right; margin-bottom: 15px">
           <span class="tipMsg" @click="drawer = true"
-            >请这里获取腾游用户ID!!!</span
+            >请点击这里获取(更新)腾游账户信息！！</span
           >
         </p>
         <el-form-item
@@ -191,7 +202,7 @@
   </div>
 </template>
 <script>
-import { ref, reactive, toRefs } from "vue";
+import { ref, reactive, toRefs, computed } from "vue";
 import {
   tyStopTyTimePassWord,
   tyUpCheck,
@@ -209,6 +220,19 @@ import { merge, getQueryString } from "../utils/common";
 import { ElMessage, ElMessageBox } from "element-plus";
 export default {
   setup() {
+    let timeRemaining = (val) => {
+      const totalMinutes = val;
+      const minutesPerDay = 24 * 60;
+      const minutesPerHour = 60;
+
+      const days = Math.floor(totalMinutes / minutesPerDay);
+      const hours = Math.floor((totalMinutes % minutesPerDay) / minutesPerHour);
+      const minutes = totalMinutes % minutesPerHour;
+
+      const formattedTime = `${days} 天 ${hours} 小时 ${minutes} 分钟`;
+      return formattedTime;
+    };
+
     let drawerFormRef = ref(null);
 
     let state = reactive({
@@ -473,7 +497,7 @@ export default {
                 tyGameFrom.userId = res_2.data.user;
                 tyGetTyUserInfo({ token: res_2.data.token }).then((res_3) => {
                   if (res_3.data.code == 200) {
-                    tyGameFrom.json = JSON.stringify(res_3.data);
+                    tyGameFrom.json = JSON.stringify(res_3.data.data);
                     drawer.value = false;
                     TElMessage("腾游信息获取成功");
                   } else {
@@ -500,7 +524,18 @@ export default {
         getVxQr();
       }
     };
+    let openWhy = () => {
+      ElMessageBox.alert(
+        "<p>注意：只支持腾游加速器</p> <p>使用指南：先创建一个属于你的账户,然后就启动监测,启动成功后腾游加速并不会扣除你的可用加速时长，你可正常使用腾游加速器没有任何影响。</p>",
+        "这个东西有什么用？",
+        {
+          dangerouslyUseHTMLString: true,
+        }
+      );
+    };
     return {
+      timeRemaining,
+      openWhy,
       ChangedrawerFormType,
       drawerFormRef,
       sendCode,
@@ -548,7 +583,7 @@ export default {
     margin-top: 20px;
     position: relative;
     z-index: 2;
-    padding: 0 10px;
+    padding: 0 30px;
     display: flex;
     align-items: center;
     opacity: 0.9;
@@ -559,39 +594,40 @@ export default {
     display: flex;
     flex-wrap: wrap;
     box-sizing: border-box;
-    padding: 10.5px;
+    padding: 20px 30px;
     .account-item {
       overflow: hidden;
       position: relative;
-      width: 161px;
-      height: 220px;
+      width: 270px;
+      height: 250px;
       text-align: center;
-      background: #bebebec7;
+      background: #e2e2e2cb;
       padding: 20px;
-      margin-right: 10px;
-      margin-top: 10px;
+      margin-right: 30px;
+      margin-top: 30px;
       border-radius: 3px;
+      box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
       img {
         width: 100px;
         height: 100px;
         border-radius: 50%;
       }
       p {
-        font-size: 18px;
-        margin-top: 6px;
+        font-size: 14px;
+        margin-top: 4px;
         font-weight: 700;
         color: rgb(61, 61, 61);
       }
       p:nth-child(2) {
+        font-size: 18px;
       }
       p:nth-child(3) {
       }
       p:nth-child(4) {
-        color: red;
+        font-size: 14px;
       }
       p:nth-child(5) {
-        font-size: 16px;
-        margin-top: 10px;
+        font-size: 14px;
       }
       &:hover {
         .item-mark {
@@ -611,33 +647,27 @@ export default {
         align-items: center;
         justify-content: center;
         > button {
+          width: 150px;
+          height: 40px;
           margin: 10px 0 0 0;
           padding: 10px;
         }
       }
-    }
-    .account-item-my {
-      &::after {
+      .item-footer {
         position: absolute;
-        content: "";
-        font-size: 20px;
-        width: 80px;
-        height: 80px;
-        background: #ffe600c7;
-        right: -40px;
-        top: -40px;
-        display: inline-block;
-        transform: rotate(45deg);
+        height: 35px;
+        line-height: 35px;
+        font-size: 16px;
+        color: #fff;
+        width: 100%;
+        bottom: 0;
+        left: 0;
+        background: red;
+        font-weight: 700;
+        letter-spacing: 2px;
       }
-      &::before {
-        z-index: 2;
-        content: "我";
-        position: absolute;
-        font-size: 20px;
-        right: 8px;
-        top: 0px;
-        display: inline-block;
-        color: white;
+      .yes-staua {
+        background: green;
       }
     }
   }

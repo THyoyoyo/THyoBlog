@@ -2,6 +2,7 @@ package com.blogs.controller;
 
 
 import ch.qos.logback.core.joran.util.beans.BeanUtil;
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.blogs.mapper.TyUserInfo.TyUserInfoMapper;
 import com.blogs.model.TyUserInfo.TyUserInfo;
@@ -73,6 +74,14 @@ public class TyGameController {
             String s = tyUserInfo.getUserId().replaceAll("(?<=\\d{3})\\d(?=\\d{5})", "*");
             tyUserInfo.setUserId(s);
             BeanUtils.copyProperties(tyUserInfo, tyUserList);
+            if(tyUserInfo.getJson()!=null && tyUserInfo.getJson()!="") {
+                Map<String, Object> userInfoMap = (Map<String, Object>) JSON.parse(tyUserInfo.getJson());
+                userInfoMap.put("user_account","*******");
+                userInfoMap.put("user_id","*******");
+                tyUserList.setUserInfo(userInfoMap);
+            }
+
+
             tyUserLists.add(tyUserList);
         }
         return R.succeed(tyUserLists);

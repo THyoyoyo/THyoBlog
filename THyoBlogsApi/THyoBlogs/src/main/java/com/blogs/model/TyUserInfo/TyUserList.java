@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.Map;
 
 @Data
 public class TyUserList {
@@ -42,6 +43,11 @@ public class TyUserList {
     /** 自动暂停时间 */
     @ApiModelProperty(value = "自动暂停时间")
     private String autoCloseTime;
+
+
+    /** 其他信息 */
+    @ApiModelProperty(value = "其他信息")
+    private Map<String,Object> userInfo;
 
 
 }
