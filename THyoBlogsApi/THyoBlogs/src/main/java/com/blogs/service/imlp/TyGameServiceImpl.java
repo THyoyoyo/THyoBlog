@@ -35,4 +35,5 @@ public class TyGameServiceImpl implements TyGameService {
         Map<String, Object> parse = (Map<String, Object>) JSON.parse(response);
         return parse;
     }
+
 }

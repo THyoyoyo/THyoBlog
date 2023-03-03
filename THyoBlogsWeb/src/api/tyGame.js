@@ -44,3 +44,47 @@ export function checkUserInfo(data) {
         params: data
     })
 }
+
+
+
+export function tySendCode(data) {
+    return request({
+        url: `/tyGame/upCode`,
+        method: 'get',
+        params: data
+    })
+}
+
+
+export function tyCodeLogin(data) {
+    return request({
+        url: `/tyGame/codeLogin`,
+        method: 'get',
+        params: data
+    })
+}
+
+
+export function getQrImg(data) {
+    return request({
+        url: `/tyGame/getQrImg`,
+        method: 'get',
+        params: data
+    })
+}
+
+export function trQrTicketUser(data) {
+    return request({
+        url: `/tyGame/qrTicketUser`,
+        method: 'get',
+        params: data
+    })
+}
+
+export function tyGetTyUserInfo(data) {
+    return request({
+        url: `/tyGame/getTyUserInfo`,
+        method: 'get',
+        params: data
+    })
+}

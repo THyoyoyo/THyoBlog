@@ -35,4 +35,12 @@ public class TyUserSava {
     @ApiModelProperty(value = "自动暂停时间")
     private String autoCloseTime;
 
+    /** 腾游用户token */
+    @ApiModelProperty(value = "腾游用户token")
+    private String token;
+
+    /** 其他信息 */
+    @ApiModelProperty(value = "其他信息")
+    private String json;
+
 }

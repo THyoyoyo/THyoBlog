@@ -10,4 +10,6 @@ public interface TyGameService {
      * 通过ID暂停加速
      */
     public Map<String, Object> stopTyTime(StopTyTime stopTyTime);
+
+
 }

@@ -31,3 +31,14 @@ export let getAllCotnent = (str = "") => {
     let ctx = div.textContent.trim();
     return ctx || ""
 }
+
+
+// 取url参数 
+export function getQueryString(searchUrl, name) {
+    var reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)', 'i');
+    var r = searchUrl.substr(1).match(reg);
+    if (r != null) {
+        return unescape(r[2]);
+    }
+    return null;
+}

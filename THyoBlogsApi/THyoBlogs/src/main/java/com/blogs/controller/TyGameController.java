@@ -7,6 +7,7 @@ import com.blogs.mapper.TyUserInfo.TyUserInfoMapper;
 import com.blogs.model.TyUserInfo.TyUserInfo;
 import com.blogs.model.TyUserInfo.TyUserList;
 import com.blogs.model.TyUserInfo.TyUserSava;
+import com.blogs.model.expressTools.OkHttpMethod;
 import com.blogs.model.expressTools.StopTyTime;
 import com.blogs.service.ExpressToolsService;
 import com.blogs.service.TyGameService;
@@ -138,4 +139,125 @@ public class TyGameController {
         return R.succeed(tyUserInfo);
     }
 
+
+
+
+    private String generateRandomString(){
+
+        String CHARACTERS = "0123456789ABCDEF";
+        int LENGTH = 12;
+        Random random = new Random();
+        StringBuilder sb = new StringBuilder(LENGTH);
+        for (int i = 0; i < LENGTH; i++) {
+            int index = random.nextInt(CHARACTERS.length());
+            sb.append(CHARACTERS.charAt(index));
+        }
+        return sb.toString();
+    }
+
+
+    @ApiOperation(value = "发送短信")
+    @GetMapping("/upCode")
+    private R upCode(@RequestParam("phone") String phone,
+                     @RequestParam("ticket") String ticket,
+                     @RequestParam("randstr") String randstr
+                     ){
+        OkHttpMethod okHttpMethod = new OkHttpMethod();
+        okHttpMethod.setUrl("https://api-login.tengyoujiasu.com/api/v1/yb_login/gw/login_send");
+        okHttpMethod.setMethod("get");
+        HashMap<String, String> param = new HashMap<>();
+        String randomMac = generateRandomString();
+        param.put("phone",phone);
+        param.put("ticket",ticket);
+        param.put("randstr",randstr);
+        param.put("channel_number","PV00001");
+        param.put("mac",randomMac);
+        param.put("type","gw_phone_login");
+        param.put("ct","1");
+        param.put("cn","PV00001");
+        param.put("af","0");
+        param.put("cv","4.0.1.3");
+        okHttpMethod.setParam(param);
+        Map<String, Object> stringObjectMap = (Map<String, Object>) expressToolsService.okHttpMethod(okHttpMethod);
+        stringObjectMap.put("mac",randomMac);
+        return R.succeed(stringObjectMap);
+    }
+
+    @ApiOperation(value = "通过短信Code进行登录")
+    @GetMapping("/codeLogin")
+    private R codeLogin(@RequestParam("phone") String phone,
+                        @RequestParam("code") String code,
+                        @RequestParam(value = "mac" ,required = false) String mac
+    ){
+        if(mac==null){
+            mac = generateRandomString();
+        }
+        OkHttpMethod okHttpMethod = new OkHttpMethod();
+        okHttpMethod.setUrl("https://api-login.tengyoujiasu.com/api/v1/yb_login/gw/login_phone");
+        okHttpMethod.setMethod("get");
+        HashMap<String, String> param = new HashMap<>();
+        param.put("phone",phone);
+        param.put("code",code);
+        param.put("channel_number","PV00001");
+        param.put("mac",mac);
+        param.put("type","gw_phone_login");
+        param.put("ct","1");
+        param.put("cn","PV00001");
+        param.put("af","0");
+        param.put("cv","4.0.1.3");
+        okHttpMethod.setParam(param);
+        Map<String, Object> map = (Map<String, Object>) expressToolsService.okHttpMethod(okHttpMethod);
+        return R.succeed(map);
+    }
+
+
+    @ApiOperation(value = "获取微信二维码登录")
+    @GetMapping("/getQrImg")
+    private R getQrImg(){
+        OkHttpMethod okHttpMethod = new OkHttpMethod();
+        okHttpMethod.setUrl("https://api-login.tengyoujiasu.com/api/v1/yb_login/gzh/ticket");
+        okHttpMethod.setMethod("post");
+        HashMap<String, String> param = new HashMap<>();
+        param.put("channel_number","PV00001");
+        param.put("ct","0");
+        okHttpMethod.setParam(param);
+        Map<String, Object> map = (Map<String, Object>) expressToolsService.okHttpMethod(okHttpMethod);
+        return R.succeed(map);
+    }
+
+
+    @ApiOperation(value = "查询二维码是否登录")
+    @GetMapping("/qrTicketUser")
+    private R qrTicketUser(@RequestParam("ticket") String ticket ){
+        OkHttpMethod okHttpMethod = new OkHttpMethod();
+        okHttpMethod.setUrl("https://api-login.tengyoujiasu.com/api/v1/yb_login/gzh/ticket_user");
+        okHttpMethod.setMethod("post");
+        HashMap<String, String> param = new HashMap<>();
+        param.put("ticket",ticket);
+        HashMap<String, String> header = new HashMap<>();
+        header.put("Referer","https://www.tengyoujiasu.com/");
+        header.put("Origin","https://www.tengyoujiasu.com");
+        header.put("Host","api-login.tengyoujiasu.com");
+        header.put("content-type","application/json");
+        okHttpMethod.setParam(param);
+        okHttpMethod.setHeader(header);
+        Map<String, Object> map = (Map<String, Object>) expressToolsService.okHttpMethod(okHttpMethod);
+       return R.succeed(map);
+    }
+
+    @ApiOperation(value = "通过token获取用户信息")
+    @GetMapping("/getTyUserInfo")
+    private R getTyUserInfo (@RequestParam("token") String token){
+        OkHttpMethod okHttpMethod = new OkHttpMethod();
+        okHttpMethod.setUrl("https://api-admin-js.tengyoujiasu.com/api/v1/user/gw/userinfo");
+        okHttpMethod.setMethod("post");
+        HashMap<String, String> header = new HashMap<>();
+        header.put("token",token);
+        header.put("referer","https://www.tengyoujiasu.com");
+        header.put("refeorigin","https://www.tengyoujiasu.comrer");
+        header.put("content-type","application/json");
+        okHttpMethod.setHeader(header);
+        Map<String, Object> map = (Map<String, Object>) expressToolsService.okHttpMethod(okHttpMethod);
+        return R.succeed(map);
+    };
 }

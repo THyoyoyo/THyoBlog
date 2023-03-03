@@ -73,13 +73,9 @@
           <el-input v-model="tyGameFrom.userId" />
         </el-form-item>
         <p style="width: 100%; text-align: right; margin-bottom: 15px">
-          <a
-            style="color: red"
-            href="https://www.tengyoujiasu.com/u/"
-            target="_blank"
-            >请点击我打开腾游加速器用户中心并登陆</a
+          <span class="tipMsg" @click="drawer = true"
+            >请这里获取腾游用户ID!!!</span
           >
-          获取用户ID
         </p>
         <el-form-item
           prop="password"
@@ -111,6 +107,87 @@
         </span>
       </template>
     </el-dialog>
+
+    <!--  抽屉  -->
+    <el-drawer
+      v-model="drawer"
+      :before-close="drawerHandleClose"
+      title="获取腾游账号信息"
+      direction="ltr"
+      size="450px"
+    >
+      <!-- 选择登录方式 -->
+      <el-form :model="drawerForm" label-width="100px" ref="drawerFormRef">
+        <el-form-item label="登录方式：">
+          <el-radio-group
+            v-model="drawerForm.type"
+            @change="ChangedrawerFormType"
+          >
+            <el-radio :label="1">短信登录</el-radio>
+            <el-radio :label="2">二维码登录</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <!-- 短信登录 -->
+        <template v-if="drawerForm.type == 1">
+          <iframe
+            v-if="codeiFrame == 1"
+            id="tyjy"
+            src="/tyjy/index.html"
+            frameborder="0"
+            width="400"
+            height="400"
+          ></iframe>
+          <el-form-item
+            label="手机号："
+            prop="phone"
+            :rules="[
+              {
+                required: true,
+                message: '请填写手机号',
+                trigger: 'blur',
+              },
+              {
+                pattern: /^1[3|4|5|7|8|6|9][0-9]{9}$/,
+                message: '输入的手机号不正确',
+              },
+            ]"
+          >
+            <el-input v-model="drawerForm.phone">
+              <template #append>
+                <span style="cursor: pointer" @click="upCode(drawerFormRef)">{{
+                  codeiFrameBtnText[codeiFrame]
+                }}</span>
+              </template>
+            </el-input>
+          </el-form-item>
+          <el-form-item
+            label="验证码："
+            prop="code"
+            :rules="[
+              {
+                required: true,
+                message: '请填写验证码',
+                trigger: 'blur',
+              },
+            ]"
+          >
+            <el-input v-model="drawerForm.code" />
+          </el-form-item>
+        </template>
+        <!-- 微信登录 -->
+        <template v-if="drawerForm.type == 2">
+          <img :src="drawerForm.vqQr" alt="" />
+        </template>
+      </el-form>
+      <div v-if="drawerForm.type == 1" class="drawerFormBtn">
+        <el-button
+          type="primary"
+          black
+          @click="drawerFormOnSubmit(drawerFormRef)"
+          >登录</el-button
+        >
+      </div>
+    </el-drawer>
   </div>
 </template>
 <script>
@@ -121,12 +198,19 @@ import {
   tyUserList,
   tyUserSava,
   checkUserInfo,
+  tySendCode,
+  tyCodeLogin,
+  getQrImg,
+  trQrTicketUser,
+  tyGetTyUserInfo,
 } from "../api/tyGame";
 import { TElMessage } from "../utils/inform";
-import { merge } from "../utils/common";
+import { merge, getQueryString } from "../utils/common";
 import { ElMessage, ElMessageBox } from "element-plus";
 export default {
   setup() {
+    let drawerFormRef = ref(null);
+
     let state = reactive({
       tableData: [],
     });
@@ -139,6 +223,9 @@ export default {
         password: null,
         qq: null,
         checkPassword: null,
+        mac: null,
+        json: null,
+        token: null,
       };
     };
     let tyGameFrom = reactive(tyGameFromData());
@@ -150,9 +237,7 @@ export default {
     });
 
     // 弹窗关闭
-    const handleClose = () => {
-      merge(tyGameFrom, tyGameFromData());
-    };
+    const handleClose = () => {};
     let formRef = ref(null);
 
     // 就现在立刻加入
@@ -167,6 +252,7 @@ export default {
                 TElMessage("你已成功加入，快去开启吧！");
               }
               tyGameBox.state = false;
+              merge(tyGameFrom, tyGameFromData());
               loadList();
             } else {
               TElMessage(res.message, "warning");
@@ -192,6 +278,7 @@ export default {
     //  编辑信息
     let openItemTyGameBox = (item) => {
       checkUserPass((val) => {
+        merge(tyGameFrom, tyGameFromData());
         checkUserInfo({ password: val, qq: item.qq }).then((res) => {
           if (res.code == 200) {
             tyGameBox.state = true;
@@ -264,7 +351,166 @@ export default {
       });
     };
 
+    // 抽屉
+    const drawer = ref(false);
+    let drawerFormData = () => {
+      return {
+        type: 1,
+        phone: "",
+        code: "",
+        ticket: "",
+        randstr: "",
+        vqQr: "",
+      };
+    };
+    let drawerForm = reactive(drawerFormData());
+    let drawerHandleClose = () => {
+      ElMessageBox.confirm(`确定不从这里获取信息了？`)
+        .then(() => {
+          drawer.value = false;
+          merge(drawerForm, drawerFormData());
+          clearInterval(codeJyTiem);
+          clearInterval(qrJyTime);
+        })
+        .catch(() => {
+          // catch error
+        });
+    };
+
+    //校验状态：0关闭 1：开启 2：通过校验 3:已发送
+    let codeiFrameBtnText = reactive([
+      "请点击校验",
+      "请先通过校验",
+      "发送验证码",
+      "已发送",
+    ]);
+    let codeiFrame = ref(0);
+    // 发送检验验证码按钮
+    let codeJyTiem = null;
+    let upCode = (formRef) => {
+      formRef.validateField(["phone"], (res) => {
+        if (!res) {
+          // 校验验证码
+          if (codeiFrame.value == 0) {
+            codeiFrame.value = 1;
+            // 看起轮询监控校验
+            codeJyTiem = setInterval(() => {
+              let url =
+                document.getElementById("tyjy").contentWindow.location.search;
+              let type = getQueryString(url, "r");
+              if (type == "verification_success") {
+                drawerForm.ticket = getQueryString(url, "ticket");
+                drawerForm.randstr = getQueryString(url, "randstr");
+                codeiFrame.value = 2;
+                clearInterval(codeJyTiem);
+              }
+              if (type == "verification_close") {
+                codeiFrame.value = 0;
+                clearInterval(codeJyTiem);
+              }
+            }, 500);
+            return;
+          }
+          if (codeiFrame.value == 2) {
+            sendCode();
+          }
+          if (codeiFrame == 3) {
+            ElMessage("短信已发送,没有收到？请等待1分钟后重新打开页面再尝试");
+          }
+        }
+      });
+    };
+    //发送验证码
+    let sendCode = () => {
+      let { phone, randstr, ticket } = drawerForm;
+      tySendCode({ phone, randstr, ticket }).then((res) => {
+        if (res.data.code == 200) {
+          tyGameFrom.mac = res.data.mac;
+          TElMessage("验证码已发送，请继续");
+          codeiFrame.value = 3;
+        } else {
+          TElMessage(res.data.msg);
+        }
+      });
+    };
+    //提交
+    let drawerFormOnSubmit = (formRef) => {
+      let { phone, code } = drawerForm;
+      let { mac } = tyGameFrom;
+      formRef
+        .validate()
+        .then((res) => {
+          tyCodeLogin({ phone, code, mac }).then((res) => {
+            if (res.data.code == 200) {
+              TElMessage("腾游信息获取成功");
+              tyGameFrom.json = JSON.stringify(res.data.data.user_info);
+              tyGameFrom.token = res.data.data.token;
+              tyGameFrom.userId = res.data.data.user_info.user_id;
+              drawer.value = false;
+            } else {
+              TElMessage(res.data.msg, "warning");
+            }
+          });
+        })
+        .catch(() => {
+          TElMessage("请填写完整", "warning");
+        });
+    };
+
+    let qrJyTime = null;
+    let getVxQr = () => {
+      getQrImg().then((res) => {
+        if (res.data.code == 200) {
+          TElMessage("获取微信二维码成功！");
+          qrJyTime = setInterval(() => {
+            drawerForm.vqQr =
+              "https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=" +
+              res.data.ticket;
+            trQrTicketUser({ ticket: res.data.ticket }).then((res_2) => {
+              if (res_2.data.code == 200) {
+                clearInterval(qrJyTime);
+                tyGameFrom.token = res_2.data.token;
+                tyGameFrom.userId = res_2.data.user;
+                tyGetTyUserInfo({ token: res_2.data.token }).then((res_3) => {
+                  if (res_3.data.code == 200) {
+                    tyGameFrom.json = JSON.stringify(res_3.data);
+                    drawer.value = false;
+                    TElMessage("腾游信息获取成功");
+                  } else {
+                    TElMessage(res_3.data.msg, "warning");
+                  }
+                });
+              }
+            });
+          }, 2000);
+        } else {
+          TElMessage(res.data.msg, "warning");
+        }
+      });
+    };
+
+    // 登录方式选择监听
+    let ChangedrawerFormType = (val) => {
+      if (val == 1) {
+        clearInterval(qrJyTime);
+        drawerForm.vqQr = "";
+      }
+      if (val == 2) {
+        clearInterval(codeJyTiem);
+        getVxQr();
+      }
+    };
     return {
+      ChangedrawerFormType,
+      drawerFormRef,
+      sendCode,
+      codeiFrameBtnText,
+      drawerFormOnSubmit,
+      upCode,
+      codeiFrame,
+      drawerForm,
+      drawerHandleClose,
+      drawer,
       stopTyTime,
       upCheckStaua,
       handleClose,
@@ -393,6 +639,25 @@ export default {
         display: inline-block;
         color: white;
       }
+    }
+  }
+  .tipMsg {
+    color: red;
+    cursor: pointer;
+    letter-spacing: 1px;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+  .drawerFormBtn {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    button {
+      width: 100%;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 3px;
     }
   }
 }

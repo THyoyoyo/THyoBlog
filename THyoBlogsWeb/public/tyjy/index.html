@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>腾游加速器</title>
+</head>
+
+<body></body>
+
+</html>
+<script src="./jsweb.js"></script>
+<script>
+	_jsweb.use(
+		["TCaptcha", "jquery", "ajaxhost", "config", "jsbridge", "sensorsdata"],
+		function () {
+			_jsweb.scReport("captcha_pageview", false, function (res) {
+				sensors = res;
+			});
+
+			var isIE = typeof window.mbQuery === "undefined";
+			var opt = { loading: false, needFeedBack: false };
+
+			_jsweb.getTerminal().mobile &&
+				$("head").append(
+					"<style>.tcaptcha-transform {transform:scale(.8);}</style>"
+				) &&
+				(opt.ready = function (res) {
+					_invokedNativeFunc("verification_ready", "");
+				});
+
+			_jsweb.TCaptcha(opt, function (res) {
+				_jsweb.getTerminal().mobile &&
+					_invokedNativeFunc("verification_ready", "");
+
+				if (res.ret === 0) {
+					var jsonParams = JSON.stringify({
+						ticket: res.ticket,
+						randstr: res.randstr,
+					});
+
+					if (_jsweb.getTerminal().mobile) {
+						_invokedNativeFunc("verification_success", jsonParams);
+
+						265
+					} else {
+						if (isIE) {
+							window.location.href =
+								"?r=verification_success&ticket=" +
+								res.ticket +
+								"&randstr=" +
+								res.randstr;
+						} else {
+							window.mbQuery("verification_success", jsonParams);
+						}
+					}
+				} else {
+					if (_jsweb.getTerminal().mobile) {
+						_invokedNativeFunc("verification_close", "");
+					} else {
+						if (isIE) {
+							window.location.href = "?r=verification_close";
+						} else {
+							window.mbQuery("verification_close", "");
+						}
+					}
+				}
+			});
+		}
+	);
+</script>
