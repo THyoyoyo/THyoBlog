@@ -31,7 +31,7 @@ public class ScheduledService {
     /**
      * 腾游加速器监控初始化
      * */
-    @Scheduled(cron = "0/50 * * * * ?")
+    @Scheduled(cron = "0 0/1  * * * ?")
     private void tyTimeCheck() {
         QueryWrapper<TyUserInfo> tyUserInfoQueryWrapper = new QueryWrapper<>();
         tyUserInfoQueryWrapper.isNotNull("user_id");
@@ -39,19 +39,21 @@ public class ScheduledService {
         for (TyUserInfo tyUserInfo : tyUserInfos) {
             //自动暂停时间
             if(tyUserInfo.getState().equals(1)){
+                //当前用户错误次数
                 Integer errNum = tyUserInfo.getErrNum();
-                if(errNum.compareTo(5) > 0){
-                    tyUserInfo.setState(0);
-                }
-
+                //如果暂停失败次数大于3次则取消加速
+//                if(errNum.compareTo(3) == 1){
+//                    tyUserInfo.setState(0);
+//                }
                 StopTyTime stopTyTime = new StopTyTime();
                 stopTyTime.setUserId(tyUserInfo.getUserId());
                 stopTyTime.setStatus(1);
                 Map<String, Object> stringObjectMap = tyGameService.stopTyTime(stopTyTime);
-
+                System.out.println(stringObjectMap);
+                //暂停接口返回code
                 Integer code = Integer.valueOf(stringObjectMap.get("code").toString());
-                if(code != 200){
-                    tyUserInfo.setErrNum(errNum+1);
+                if(code.compareTo(200) !=0){
+                    tyUserInfo.setErrNum(++errNum);
                 }
                 tyUserInfoMapper.updateById(tyUserInfo);
             }

@@ -64,7 +64,7 @@
       destroy-on-close
     >
       <el-form
-        label-width="120px"
+        label-width="140px"
         :model="tyGameFrom"
         ref="formRef"
         style="width: 520px"
@@ -74,18 +74,24 @@
           prop="qq"
           :rules="[{ required: true, message: '请填写正确的QQ号' }]"
         >
-          <el-input v-model="tyGameFrom.qq" />
+          <el-input
+            v-model="tyGameFrom.qq"
+            placeholder="请填写你自己的QQ号，方便操作"
+          />
         </el-form-item>
         <el-form-item
           label="腾游用户ID："
           prop="userId"
           :rules="[{ required: true, message: '请填写正确的腾游用户ID：' }]"
         >
-          <el-input v-model="tyGameFrom.userId" />
+          <el-input
+            v-model="tyGameFrom.userId"
+            placeholder="不知道用户ID？请点击下方快速获取"
+          />
         </el-form-item>
         <p style="width: 100%; text-align: right; margin-bottom: 15px">
           <span class="tipMsg" @click="drawer = true"
-            >请点击这里获取(更新)腾游账户信息！！</span
+            >请点击这里获取（更新）滕游用户ID（腾游用户信息）</span
           >
         </p>
         <el-form-item
@@ -93,21 +99,31 @@
           label="操作密码："
           :rules="[{ required: true, message: '请填写操作密码' }]"
         >
-          <el-input v-model="tyGameFrom.password" />
+          <el-input
+            v-model="tyGameFrom.password"
+            placeholder="该密码仅用于该模块，操作权限依据(非腾游加速器密码)"
+          />
         </el-form-item>
-        <p style="width: 100%; text-align: right; margin-bottom: 15px">
-          该密码仅用于本模块，操作权限依据
-        </p>
-        <el-form-item label="定时检查时间：" required>
+        <el-form-item label="定时检查时间：">
           <el-time-picker
+            disabled
             v-model="tyGameFrom.autoCloseTime"
             format="HH:mm:ss"
             value-format="x"
           />
+          <span>（暂未开启）</span>
+          <p class="form-item-tip">
+            设置一个时间，每天在这个时间检查是否已暂停加速器
+          </p>
         </el-form-item>
-        <p style="width: 100%; text-align: right">
-          设置一个时间，每天在这个时间检查是否已暂停加速器
-        </p>
+
+        <el-form-item label="自动关闭监测">
+          <el-switch disabled />
+          <span>（暂未开启）</span>
+          <p class="form-item-tip">
+            超过5分钟未加速自动关闭监测，下次使用需重新开启监测
+          </p>
+        </el-form-item>
       </el-form>
       <template #footer>
         <span class="dialog-footer">
@@ -526,7 +542,10 @@ export default {
     };
     let openWhy = () => {
       ElMessageBox.alert(
-        "<p>注意：只支持腾游加速器</p> <p>使用指南：先创建一个属于你的账户,然后就启动监测,启动成功后腾游加速并不会扣除你的可用加速时长，你可正常使用腾游加速器没有任何影响。</p>",
+        `<p>注意：只支持腾游加速器</p> 
+         <p>使用指南：创建一个属于你的账户,根据提示开启启动监测,启动成功后腾游加速并不会扣除你的可用加速时长，你可正常使用腾游加速器没有任何影响。</p>
+        `
+        ,
         "这个东西有什么用？",
         {
           dangerouslyUseHTMLString: true,

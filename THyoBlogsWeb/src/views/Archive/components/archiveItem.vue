@@ -37,7 +37,7 @@ export default {
     // 跳转详情
     const router = useRouter();
     let goRouter = (id) => {
-      router.push(`/archive/details?id=${id}`);
+      window.open(`/archive/details?id=${id}`, "_blank");
     };
     return {
       goRouter,

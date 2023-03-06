@@ -106,7 +106,7 @@ public class LoginController {
              return  R.failed(404,str);
          }
 
-        Map<String,String> qqInfo = (Map<String,String>)expressToolsService.getQqInfo(qq);
+        Map<String,Object> qqInfo = expressToolsService.getQqInfo(qq);
         if(qqInfo.get("status").equals("error")){
             return R.failed(404,"未获取到QQ任何信息,请重新输入");
         }
@@ -120,8 +120,8 @@ public class LoginController {
             //新建
             user = new User();
             user.setAccount(qq);
-            user.setHead(qqInfo.get("headimg"));
-            user.setName(qqInfo.get("nickname"));
+            user.setHead(qqInfo.get("qlogo").toString());
+            user.setName(qqInfo.get("name").toString());
             user.setPassword("123456");
             user.setState("1");
             user.setRoleId(8);
@@ -130,8 +130,8 @@ public class LoginController {
         }else {
             //只有游客角色 才更新
             if (user.getRoleId().equals(8)){
-                user.setHead(qqInfo.get("headimg"));
-                user.setName(qqInfo.get("nickname"));
+                user.setHead(qqInfo.get("qlogo").toString());
+                user.setName(qqInfo.get("name").toString());
             }
         }
         ReturnUserLoginInfoVo returnUserLoginInfoVo = new ReturnUserLoginInfoVo();

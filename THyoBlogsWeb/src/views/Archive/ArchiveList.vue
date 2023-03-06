@@ -12,7 +12,7 @@
 import ArchiveItem from "./components/archiveItem";
 import { useRoute, useRouter } from "vue-router";
 import { articList } from "../../api/article";
-import { reactive, toRefs, watch } from "vue";
+import { onMounted, reactive, toRefs, watch } from "vue";
 
 export default {
   components: {

@@ -17,7 +17,7 @@ public interface ExpressToolsService {
 
     public Object okHttpMethod(OkHttpMethod okHttpMethod);
 
-    public Object getQqInfo(String qq);
+    public Map<String, Object> getQqInfo(String qq);
 
     public Map<String, Object> stopTyTime(StopTyTime stopTyTime);
 

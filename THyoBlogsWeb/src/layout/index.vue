@@ -2,6 +2,7 @@
   <div class="main">
     <AppHaeder />
     <router-view class="appCentent"></router-view>
+    <AppFooterVue />
     <vue-particles
       color="#000000"
       :particleOpacity="0.4"
@@ -22,10 +23,12 @@
   </div>
 </template>
 <script>
+import AppFooterVue from "./admin/appFooter.vue";
 import AppHaeder from "./appHaeder.vue";
 export default {
   components: {
     AppHaeder,
+    AppFooterVue,
   },
 };
 </script>
@@ -35,7 +38,7 @@ export default {
   padding: 0px 0 60px 0;
   box-sizing: border-box;
   .appCentent {
-    min-height: -webkit-fill-available;
+    min-height: 100vh;
   }
 }
 </style>

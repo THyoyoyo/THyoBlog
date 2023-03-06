@@ -170,17 +170,16 @@ public class ExpressToolsServiceImpl implements ExpressToolsService {
     }
 
     @Override
-    public Object getQqInfo(String qq) {
+    public Map<String, Object> getQqInfo(String qq) {
         String KEY = "VFR6AzQbrG9eyAbFqt5wDUfHV9";
         OkHttpMethod okHttpMethod = new OkHttpMethod();
-        okHttpMethod.setUrl("https://qqlykm.cn/api/qqobtain/get");
+        okHttpMethod.setUrl("https://api.uomg.com/api/qq.info");
         okHttpMethod.setMethod("get");
         HashMap<String, String> param = new HashMap<>();
-        param.put("key",KEY);
         param.put("qq",qq);
         okHttpMethod.setParam(param);
-        Object o = this.okHttpMethod(okHttpMethod);
-        return o;
+        Map<String, Object> stringObjectMap = (Map<String, Object>) this.okHttpMethod(okHttpMethod);
+        return stringObjectMap;
     }
 
     @Override

@@ -69,8 +69,8 @@ public class TyGameController {
         for (TyUserInfo tyUserInfo : tyUserInfos) {
             Map<String, Object> qqInfo = (Map<String, Object>) expressToolsService.getQqInfo(tyUserInfo.getQq());
             TyUserList tyUserList = new TyUserList();
-            tyUserList.setQqName(qqInfo.get("nickname").toString());
-            tyUserList.setQqImg(qqInfo.get("headimg").toString());
+            tyUserList.setQqName(qqInfo.get("name").toString());
+            tyUserList.setQqImg(qqInfo.get("qlogo").toString());
             String s = tyUserInfo.getUserId().replaceAll("(?<=\\d{3})\\d(?=\\d{5})", "*");
             tyUserInfo.setUserId(s);
             BeanUtils.copyProperties(tyUserInfo, tyUserList);

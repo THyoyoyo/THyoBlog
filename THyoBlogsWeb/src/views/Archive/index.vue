@@ -132,6 +132,8 @@ export default {
         let { id } = val;
         router.replace({ path: "/archive/list", query: { id, type } });
       }
+
+      document.body.scrollTop = document.documentElement.scrollTop = 0;
     }
 
     // 背景重置
@@ -177,7 +179,7 @@ export default {
 </script>
 <style lang="less" scoped>
 .archive {
-  background: rgb(252, 252, 252);
+  overflow: hidden;
   .archive-header {
     position: relative;
     z-index: 1;
