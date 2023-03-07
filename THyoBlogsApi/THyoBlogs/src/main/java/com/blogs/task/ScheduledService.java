@@ -28,6 +28,7 @@ public class ScheduledService {
      @Autowired
      TyUserInfoMapper tyUserInfoMapper;
 
+
     /**
      * 腾游加速器监控初始化
      * */
@@ -59,4 +60,7 @@ public class ScheduledService {
             }
         }
     }
+
+
+
 }

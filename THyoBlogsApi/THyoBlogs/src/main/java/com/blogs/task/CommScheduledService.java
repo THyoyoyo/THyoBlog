@@ -1,6 +1,9 @@
 package com.blogs.task;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.blogs.mapper.other.OtherWyyMapper;
 import com.blogs.model.expressTools.OkHttpMethod;
+import com.blogs.model.other.OtherWyy;
 import com.blogs.service.ExpressToolsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -11,7 +14,7 @@ import java.util.Map;
 
 
 @Component
-public class WyyScheduledService {
+public class CommScheduledService {
 
 
 
@@ -19,18 +22,17 @@ public class WyyScheduledService {
     ExpressToolsService expressToolsService;
 
 
+    @Autowired
+    OtherWyyMapper otherWyyMapper;
+
+
+
+    /**
+     * 公共爬取
+     * */
     @Scheduled(cron = "0/1 * * * * ?")
-    private void getWyyComment(){
-        OkHttpMethod okHttpMethod = new OkHttpMethod();
-        okHttpMethod.setUrl("https://api.uomg.com/api/comments.163?format=json");
-        okHttpMethod.setMethod("get");
-        HashMap<String, String> paramMap = new HashMap<>();
-        paramMap.put("format","json");
-        okHttpMethod.setParam(paramMap);
+    private void commTaekGetData(){
 
-        Map<String, Object> okMap = (Map<String, Object>) expressToolsService.okHttpMethod(okHttpMethod);
-
-        System.out.println(okMap);
 
     }
 
