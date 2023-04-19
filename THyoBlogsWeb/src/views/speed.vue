@@ -57,7 +57,10 @@
               :key="key"
             >
               <template #reference>
-                <div class="ctx-item open-box">
+                <div
+                  class="ctx-item open-box"
+                  @click="userOpenBox(item, item.keyInfo.list[0].keytype)"
+                >
                   <img
                     :src="`https://iips.speed.qq.com/images/${item.boxid}.png`"
                     alt=""
@@ -86,11 +89,40 @@
         </div>
       </div>
     </div>
+
+    <el-dialog v-model="checkOpenBox" title="开启宝箱" width="500px" center>
+      <div class="checkOpenBox">
+        <div
+          class="key-item"
+          v-for="(item, key) in atBoxInfo.keyInfo.list"
+          :key="key"
+        >
+          <img
+            v-if="item.keyList.length > 0"
+            :src="`https://iips.speed.qq.com/images/${item.keyList[0].keyid}.png`"
+            alt=""
+          />
+          <p v-if="item.keyList.length > 0">
+            {{ item.keyList[0].name }}*{{ item.keyList[0].hasNum }}
+          </p>
+        </div>
+      </div>
+
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="checkOpenBox = false">关闭</el-button>
+          <el-button type="primary" @click="checkOpenBox = false">
+            立即开启
+          </el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 <script>
 import { reactive, toRefs } from "vue";
 import { getUserBagInfo, getUserBoxItemInfoV2 } from "../api/speedTool";
+import { TElMessage } from "../utils/inform";
 export default {
   setup() {
     let state = reactive({
@@ -98,6 +130,51 @@ export default {
       car: [],
       pet: [],
       box: [],
+      checkOpenBox: false,
+      atBoxInfo: {
+        num: "36",
+        name: "魔幻圣典",
+        type: "0",
+        keyInfo: {
+          openNum: "3",
+          list: [
+            {
+              keytype: "1",
+              keyList: [
+                {
+                  num: "1",
+                  name: "幻灵附魔石",
+                  hasNum: "0",
+                  keyid: "16818",
+                },
+              ],
+            },
+            {
+              keytype: "1",
+              keyList: [
+                {
+                  num: "1",
+                  name: "圣洁附魔石",
+                  hasNum: "0",
+                  keyid: "16820",
+                },
+              ],
+            },
+            {
+              keytype: "1",
+              keyList: [
+                {
+                  num: "1",
+                  name: "闪雷附魔石",
+                  hasNum: "0",
+                  keyid: "16819",
+                },
+              ],
+            },
+          ],
+        },
+        boxid: "16817",
+      },
     });
     getUserBagInfo().then((res) => {
       if (res.code == 200 && !res.data.res) {
@@ -111,8 +188,18 @@ export default {
         state.box = res.data.data.itemList;
       }
     });
+
+    let userOpenBox = (item, type) => {
+      if (type == "1") {
+        state.checkOpenBox = true;
+      } else {
+        TElMessage("已开启" + item.name);
+      }
+      state.atBoxInfo = item;
+    };
     return {
       ...toRefs(state),
+      userOpenBox,
     };
   },
 };
@@ -222,6 +309,27 @@ export default {
   align-items: center;
   img {
     height: 30px;
+  }
+}
+
+.checkOpenBox {
+  display: flex;
+  gap: 20px;
+  .key-item {
+    user-select: none;
+    width: 140px;
+    border: 1px solid #cacaca;
+    background: #f1f1f1af;
+    margin: 0 auto;
+    img {
+      width: 140px;
+      height: 140px;
+    }
+
+    p {
+      text-align: center;
+      padding: 5px 0;
+    }
   }
 }
 </style>
