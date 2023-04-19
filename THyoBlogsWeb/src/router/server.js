@@ -39,5 +39,11 @@ export const serverRouter = [
         name: "tyGame",
         component: () => import('../views/TyGame.vue'),
         meta: { index: 1 }
+    },
+    {
+        path: "speed",
+        name: "speed",
+        component: () => import('../views/speed.vue'),
+        meta: { index: 1 }
     }
 ]
