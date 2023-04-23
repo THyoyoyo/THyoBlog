@@ -90,19 +90,32 @@
       </div>
     </div>
 
-    <el-dialog v-model="checkOpenBox" title="开启宝箱" width="500px" center>
+    <el-dialog
+      v-model="checkOpenBox"
+      title="开启宝箱"
+      width="500px"
+      center
+      :close-on-click-modal="false"
+    >
       <div class="checkOpenBox">
         <div
           class="key-item"
+          :class="
+            item.keyList.length > 0 &&
+            atBoInfoKey.keyid == item.keyList[0].keyid
+              ? 'at-key-item'
+              : ''
+          "
           v-for="(item, key) in atBoxInfo.keyInfo.list"
           :key="key"
+          @click="hanldBoxKey(item.keyList[0])"
         >
           <img
-            v-if="item.keyList.length > 0"
+            v-if="item.keyList && item.keyList.length > 0"
             :src="`https://iips.speed.qq.com/images/${item.keyList[0].keyid}.png`"
             alt=""
           />
-          <p v-if="item.keyList.length > 0">
+          <p v-if="item.keyList && item.keyList.length > 0">
             {{ item.keyList[0].name }}*{{ item.keyList[0].hasNum }}
           </p>
         </div>
@@ -111,7 +124,7 @@
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="checkOpenBox = false">关闭</el-button>
-          <el-button type="primary" @click="checkOpenBox = false">
+          <el-button type="primary" @click="openBoxApi()">
             立即开启
           </el-button>
         </span>
@@ -121,7 +134,11 @@
 </template>
 <script>
 import { reactive, toRefs } from "vue";
-import { getUserBagInfo, getUserBoxItemInfoV2 } from "../api/speedTool";
+import {
+  getUserBagInfo,
+  getUserBoxItemInfoV2,
+  openBoxByKey,
+} from "../api/speedTool";
 import { TElMessage } from "../utils/inform";
 export default {
   setup() {
@@ -131,50 +148,8 @@ export default {
       pet: [],
       box: [],
       checkOpenBox: false,
-      atBoxInfo: {
-        num: "36",
-        name: "魔幻圣典",
-        type: "0",
-        keyInfo: {
-          openNum: "3",
-          list: [
-            {
-              keytype: "1",
-              keyList: [
-                {
-                  num: "1",
-                  name: "幻灵附魔石",
-                  hasNum: "0",
-                  keyid: "16818",
-                },
-              ],
-            },
-            {
-              keytype: "1",
-              keyList: [
-                {
-                  num: "1",
-                  name: "圣洁附魔石",
-                  hasNum: "0",
-                  keyid: "16820",
-                },
-              ],
-            },
-            {
-              keytype: "1",
-              keyList: [
-                {
-                  num: "1",
-                  name: "闪雷附魔石",
-                  hasNum: "0",
-                  keyid: "16819",
-                },
-              ],
-            },
-          ],
-        },
-        boxid: "16817",
-      },
+      atBoxInfo: {},
+      atBoInfoKey: {},
     });
     getUserBagInfo().then((res) => {
       if (res.code == 200 && !res.data.res) {
@@ -190,16 +165,44 @@ export default {
     });
 
     let userOpenBox = (item, type) => {
+      // type:是要用钥匙开启
       if (type == "1") {
         state.checkOpenBox = true;
+        console.log(item);
+        // // //  默认选择一个可用的钥匙
+        try {
+          item.keyInfo.list.forEach((v) => {
+            if (v.keyList[0].hasNum > 0) {
+              state.atBoInfoKey = v.keyList[0];
+              throw new Error("结束循环");
+            }
+          });
+        } catch (error) {}
       } else {
         TElMessage("已开启" + item.name);
       }
       state.atBoxInfo = item;
     };
+
+    let hanldBoxKey = (item) => {
+      state.atBoInfoKey = item;
+    };
+
+    let openBoxApi = () => {
+      let data = {
+        boxId: state.atBoxInfo.boxid,
+        keyId1: state.atBoInfoKey.keyid,
+        keyNum1: state.atBoInfoKey.num,
+      };
+      openBoxByKey(data).then((res) => {
+        console.log(res);
+      });
+    };
     return {
       ...toRefs(state),
       userOpenBox,
+      hanldBoxKey,
+      openBoxApi,
     };
   },
 };
@@ -316,11 +319,14 @@ export default {
   display: flex;
   gap: 20px;
   .key-item {
+    cursor: pointer;
     user-select: none;
     width: 140px;
+    box-sizing: border-box;
     border: 1px solid #cacaca;
     background: #f1f1f1af;
     margin: 0 auto;
+    border-radius: 5px;
     img {
       width: 140px;
       height: 140px;
@@ -330,6 +336,9 @@ export default {
       text-align: center;
       padding: 5px 0;
     }
+  }
+  .at-key-item {
+    border: 3px solid #ff2424;
   }
 }
 </style>

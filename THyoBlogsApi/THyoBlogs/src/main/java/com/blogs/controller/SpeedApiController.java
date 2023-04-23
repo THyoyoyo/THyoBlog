@@ -13,6 +13,7 @@ import okhttp3.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
@@ -44,9 +45,13 @@ public class SpeedApiController {
 
     @ApiOperation(value = "开启宝箱（需要钥匙）")
     @GetMapping("/openBoxByKey")
-    public R openBoxByKey() throws IOException {
+    public R openBoxByKey(
+            @RequestParam("boxId")  Integer  boxId,
+            @RequestParam("keyNum1") Integer keyNum1,
+            @RequestParam("keyId1")   Integer keyId1
+    ) throws IOException {
         // referer  keyId1 keyNum1 boxId
-        Response response = speedToolService.openBoxByKey();
+        Response response = speedToolService.openBoxByKey(keyId1,keyNum1,boxId);
         return R.succeed(JSON.parse(response.body().string()));
     }
 

@@ -19,6 +19,7 @@ export function openBox(data) {
     return request({
         url: `/speedTool/openBox`,
         method: 'get',
+        params: data
     })
 }
 
@@ -26,5 +27,6 @@ export function openBoxByKey(data) {
     return request({
         url: `/speedTool/openBoxByKey`,
         method: 'get',
+        params: data
     })
 }

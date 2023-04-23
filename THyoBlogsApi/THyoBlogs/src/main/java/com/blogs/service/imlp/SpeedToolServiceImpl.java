@@ -44,11 +44,11 @@ public class SpeedToolServiceImpl implements SpeedToolService {
     }
 
     @Override
-    public Response openBoxByKey() throws IOException {
+    public Response openBoxByKey(Integer keyId1,Integer keyNum1,Integer boxId) throws IOException {
         OkHttpClient client = new OkHttpClient().newBuilder()
                 .build();
         MediaType mediaType = MediaType.parse("application/x-www-form-urlencoded");
-        RequestBody body = RequestBody.create(mediaType, "game=speed&openid=&serverId=0&areaId=1&roleId=172012672&userId=77634875&appOpenid=E985DFB4B43FE1956B6EFB162DFA88D1&keyId1=17456&keyNum1=2&keyId2=&keyNum2=&uin=522307026&token=wrMCRZSN&boxId=17455&openNum=1");
+        RequestBody body = RequestBody.create(mediaType, "game=speed&openid=&serverId=0&areaId=1&roleId=172012672&userId=77634875&appOpenid=E985DFB4B43FE1956B6EFB162DFA88D1&keyId1="+keyId1+"&keyNum1="+keyNum1+"&keyId2=&keyNum2=&uin=522307026&token=wrMCRZSN&boxId="+boxId+"&openNum=1");
         Request request = new Request.Builder()
                 .url("https://bang.qq.com/app/speed/chest/ajax/openBoxByKey")
                 .method("POST", body)
