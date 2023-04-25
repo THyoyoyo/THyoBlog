@@ -122,7 +122,7 @@ public class LoginController {
             user.setAccount(qq);
             user.setHead(qqInfo.get("qlogo").toString());
             user.setName(qqInfo.get("name").toString());
-            user.setPassword("123456");
+            user.setPassword("");
             user.setState("1");
             user.setRoleId(8);
             user.setCreationTime(new Date());
