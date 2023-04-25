@@ -19,14 +19,24 @@
             >就 现 在 , 立 刻 加 入 ！</el-button
           >
         </template>
-        <el-input v-model="referer" placeholder="请前往掌上APP抓取referer">
+        <el-input
+          v-else
+          v-model="referer"
+          placeholder="请前往掌上APP抓取referer"
+        >
           <template #prepend>我的referer链接</template>
           <template #append>
-            <el-button>保存</el-button>
+            <el-button @click="setReferer()">保存</el-button>
           </template>
         </el-input>
       </div>
       <div class="list">
+        <div class="info-item">
+          <div class="info-item-title">
+            <span>点券：{{ UserBagInfo.super_money }}</span>
+            <span>消费券：{{ UserBagInfo.coupons }}</span>
+          </div>
+        </div>
         <div class="info-item">
           <div class="info-item-title">赛车</div>
           <div class="info-item-ctx">
@@ -140,7 +150,9 @@
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="checkOpenBox = false">关闭</el-button>
-          <el-button type="primary" @click="openBoxApi()"> 立即开启 </el-button>
+          <el-button type="primary" @click="openBoxKeyApi()">
+            立即开启
+          </el-button>
         </span>
       </template>
     </el-dialog>
@@ -172,7 +184,12 @@
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="succeedBox = false">关闭</el-button>
-          <el-button type="primary" @click="openBoxApi()"> 继续开启 </el-button>
+          <el-button
+            type="primary"
+            @click="atBoInfoKey.keytype == 1 ? openBoxKeyApi() : openBoxApi()"
+          >
+            继续开启
+          </el-button>
         </span>
       </template>
     </el-dialog>
@@ -183,15 +200,19 @@
       @openLoginBox="openLoginBox"
       @openRegisterBox="openRegisterBox"
       @getList="getList"
+      @getReferer="getReferer"
     />
   </div>
 </template>
 <script>
-import { reactive, toRefs } from "vue";
+import { computed, reactive, toRefs } from "vue";
 import {
   getUserBagInfo,
   getUserBoxItemInfoV2,
   openBoxByKey,
+  getRefererInfo,
+  upReferer,
+  openBox,
 } from "../api/speedTool";
 import { TElMessage } from "../utils/inform";
 import login from "../components/speed/login.vue";
@@ -202,7 +223,11 @@ export default {
   },
   setup() {
     const store = useStore();
-    let { userInfo } = store.state;
+
+    let userInfo = computed(() => {
+      return store.state.userInfo;
+    });
+
     let state = reactive({
       avatar: [],
       car: [],
@@ -216,7 +241,9 @@ export default {
       loginBox: false,
       registerBox: false,
       referer: "",
+      UserBagInfo: {},
     });
+    // ---------------------初始数据区---------------------
 
     let getList = () => {
       getUserBagInfo().then((res) => {
@@ -224,6 +251,8 @@ export default {
           state.avatar = res.data.data.avatar_list;
           state.car = res.data.data.car_list;
           state.pet = res.data.data.pet_list;
+
+          state.UserBagInfo = res.data.data;
         }
       });
       getUserBoxItemInfoV2().then((res) => {
@@ -232,36 +261,47 @@ export default {
         }
       });
     };
+    let getReferer = () => {
+      getRefererInfo().then((res) => {
+        if (res.code == 200) {
+          state.referer = res.data.referer;
+        }
+      });
+    };
     // 如果登录获取数据
-    if (userInfo.id) {
+    if (userInfo.value.id) {
       getList();
+      getReferer();
     }
 
     let userOpenBox = (item, type) => {
+      state.atBoxInfo = item;
       // type:是要用钥匙开启
       if (type == "1") {
         state.checkOpenBox = true;
-        console.log(item);
+
         // // //  默认选择一个可用的钥匙
         try {
           item.keyInfo.list.forEach((v) => {
             if (v.keyList[0].hasNum > 0) {
               state.atBoInfoKey = v.keyList[0];
+              state.atBoInfoKey.keytype = type;
               throw new Error("结束循环");
             }
           });
         } catch (error) {}
       } else {
-        TElMessage("已开启" + item.name);
+        state.atBoInfoKey = item;
+        state.atBoInfoKey.keytype = type;
+        openBoxApi();
       }
-      state.atBoxInfo = item;
     };
 
     let hanldBoxKey = (item) => {
       state.atBoInfoKey = item;
     };
 
-    let openBoxApi = () => {
+    let openBoxKeyApi = () => {
       let data = {
         boxId: state.atBoxInfo.boxid,
         keyId1: state.atBoInfoKey.keyid,
@@ -278,8 +318,23 @@ export default {
       });
     };
 
-    //登录注册功能区
+    let openBoxApi = (boxId) => {
+      let data = {
+        boxId: state.atBoxInfo.boxid,
+      };
 
+      openBox(data).then((res) => {
+        if (res.code == 200 && !res.data.data.error_no) {
+          state.checkOpenBox = false;
+          state.succeedBox = true;
+          state.succeedBoxInfo = res.data.data;
+        } else {
+          TElMessage(res.data.data.msg, "warning");
+        }
+      });
+    };
+
+    //------------------登录注册功能区-----------------
     //打开关闭登录
     let openLoginBox = (type, fun) => {
       if (type) {
@@ -299,15 +354,43 @@ export default {
         fun && fun();
       }
     };
+    // -----------------操作功能区-------------------
+    // 更新Referer
+    let setReferer = () => {
+      //权限链接校验
+      try {
+        let obj = {};
+        state.referer
+          .split("?")[1]
+          .split("&")
+          .forEach((v) => {
+            let arr = v.split("=");
+            obj[arr[0]] = arr[1];
+          });
+        obj.referer = state.referer;
+        upReferer(obj).then((res) => {
+          if (res.code == 200) {
+            TElMessage("修改成功！");
+            getList();
+          }
+        });
+      } catch (error) {
+        TElMessage("referer格式存在错误，请检查", "warning");
+        return;
+      }
+    };
+
     return {
       ...toRefs(state),
       userOpenBox,
       hanldBoxKey,
-      openBoxApi,
+      openBoxKeyApi,
       openLoginBox,
       getList,
       openRegisterBox,
       userInfo,
+      setReferer,
+      openBoxApi,
     };
   },
 };
@@ -380,6 +463,10 @@ export default {
         background-size: 300%;
         animation: backMove 8s linear infinite;
         border-radius: 3px;
+        span{
+          display: inline-block;
+          margin-right: 100px;
+        }
       }
 
       .info-item-ctx {

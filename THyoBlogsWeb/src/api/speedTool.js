@@ -30,6 +30,22 @@ export function openBoxByKey(data) {
         params: data
     })
 }
+export function getRefererInfo(data) {
+    return request({
+        url: `/speedTool/getRefererInfo`,
+        method: 'get',
+        params: data
+    })
+}
+
+
+export function upReferer(data) {
+    return request({
+        url: `/speedTool/upReferer`,
+        method: 'post',
+        data
+    })
+}
 
 
 

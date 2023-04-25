@@ -104,7 +104,7 @@ export default {
       },
     },
   },
-  emits: ["openLoginBox", "getList", "openRegisterBox"],
+  emits: ["openLoginBox", "getList", "openRegisterBox", "getReferer"],
   setup(props, { emit }) {
     const loginFromEl = ref();
     const registerFromEl = ref();
@@ -133,6 +133,7 @@ export default {
               store.commit("setUserInfo", res.data);
               emit("openLoginBox", false, () => {
                 emit("getList");
+                emit("getReferer");
               });
             } else {
               ElMessageBox.confirm(`Sorry,${res.message}`, "网站提示", {

@@ -12,4 +12,5 @@ public @interface Token {
 
     boolean validate() default true;
     String permissions() default  "";
+    int loginCode() default 401;
 }

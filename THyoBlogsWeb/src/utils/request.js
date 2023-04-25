@@ -2,6 +2,7 @@ import axios from 'axios'
 import { ElLoading } from 'element-plus'
 import { TElMessage } from "./inform"
 import router from "../router/index"
+import store from '../store/index'
 // import store from '@/store'
 // import VueRouter from 'vue-router'
 // import Vue from 'vue'
@@ -60,6 +61,11 @@ service.interceptors.response.use(
             TElMessage(res.message, "warning")
         }
 
+
+        if (res.code == 402) {
+            // QQ飞车工具箱未登录
+            store.commit("setReset")
+        }
 
         return res
     },

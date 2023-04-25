@@ -51,7 +51,8 @@ public class SpeedApiController {
 
     @ApiOperation(value = "获取背包（宝箱）信息")
     @GetMapping("/getUserBoxItemInfoV2")
-    public R getUserBoxItemInfoV2() throws IOException {
+    @Token(loginCode = 402)
+    public R getUserBoxItemInfoV2() throws Exception {
         // referer
         Response response = speedToolService.getUserBoxItemInfoV2();
         return R.succeed(JSON.parse( response.body().string()));
@@ -60,7 +61,7 @@ public class SpeedApiController {
 
     @ApiOperation(value = "获取背包（赛车，宠物，套餐）信息")
     @GetMapping("/getUserBagInfo")
-    public R getUserBagInfo() throws IOException {
+    public R getUserBagInfo() throws Exception {
         // referer
         Response response = speedToolService.getUserBagInfo();
         return R.succeed(JSON.parse(response.body().string()));
@@ -72,7 +73,7 @@ public class SpeedApiController {
             @RequestParam("boxId")  Integer  boxId,
             @RequestParam("keyNum1") Integer keyNum1,
             @RequestParam("keyId1")   Integer keyId1
-    ) throws IOException {
+    ) throws Exception {
         // referer  keyId1 keyNum1 boxId
         Response response = speedToolService.openBoxByKey(keyId1,keyNum1,boxId);
         return R.succeed(JSON.parse(response.body().string()));
@@ -82,9 +83,9 @@ public class SpeedApiController {
 
     @ApiOperation(value = "开启宝箱")
     @GetMapping("/openBox")
-    public R openBox() throws IOException {
+    public R openBox(@RequestParam("boxId") Integer boxId) throws Exception {
         //referer boxId
-        Response response = speedToolService.openBox();
+        Response response = speedToolService.openBox(boxId);
         return R.succeed(JSON.parse(response.body().string()));
     }
 
@@ -128,7 +129,7 @@ public class SpeedApiController {
 
     @ApiOperation("编辑referer链接")
     @PostMapping("/upReferer")
-    @Token
+    @Token(loginCode = 402)
     public R upReferer(@RequestBody SpeedInfo dto) throws Exception {
 
         Integer userId = CurrentUserUtil.getUserId();
@@ -137,7 +138,8 @@ public class SpeedApiController {
         speedInfoQueryWrapper.eq("speed_user_id",userId);
         SpeedInfo speedInfo = speedInfoMapper.selectOne(speedInfoQueryWrapper);
 
-        BeanUtils.copyProperties(dto,speedInfo);
+        BeanUtils.copyProperties(dto,speedInfo,"id");
+
         speedInfoMapper.updateById(speedInfo);
 
         return  R.succeed();
@@ -147,7 +149,7 @@ public class SpeedApiController {
 
     @ApiOperation("获取用户Referer数据")
     @GetMapping("/getRefererInfo")
-    @Token
+    @Token(loginCode = 402)
     public R getRefererInfo() throws Exception {
 
         Integer userId = CurrentUserUtil.getUserId();
@@ -162,7 +164,6 @@ public class SpeedApiController {
 
     @ApiOperation("设置定时任务")
     @PostMapping("/setTimingTask")
-    @Token
     public R setTimingTask(){
         return R.succeed();
     }

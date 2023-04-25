@@ -95,7 +95,7 @@ public class LoginInterceptor implements HandlerInterceptor {
 
 
         Map<String, Object> map = new HashMap<>();
-        map.put("code",401);
+        map.put("code",annotation.loginCode());
         map.put("message",message);
         JSONObject jsonObject = new JSONObject(map);
         response.setContentType("application/json; charset=utf-8");
