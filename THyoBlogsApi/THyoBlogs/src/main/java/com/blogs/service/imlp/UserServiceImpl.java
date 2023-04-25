@@ -1,6 +1,5 @@
 package com.blogs.service.imlp;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.blogs.mapper.user.UserMapper;
 import com.blogs.model.user.User;
@@ -13,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
-import java.util.Map;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -47,9 +45,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void addUser(User user) {
+    public int addUser(User user) {
         user.setCreationTime(new Date());
-         userMapper.insert(user);
+        userMapper.insert(user);
+        return user.getId();
     }
 
     @Override

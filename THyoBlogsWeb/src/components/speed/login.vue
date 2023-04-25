@@ -1,0 +1,200 @@
+<template>
+  <div class="speed_login">
+    <el-dialog
+      v-model="loginBox"
+      title="用户登录"
+      width="400px"
+      custom-class="custom-dialog"
+      :close-on-click-modal="false"
+      :before-close="handleClose"
+    >
+      <!--       :before-close="handleClose" -->
+      <el-form :model="loginFrom" ref="loginFromEl" label-width="70px">
+        <el-form-item
+          label="账户："
+          prop="account"
+          :rules="[{ required: true, message: '请填写登录账户' }]"
+        >
+          <el-input v-model="loginFrom.account" />
+        </el-form-item>
+
+        <el-form-item
+          label="密码："
+          prop="account"
+          :rules="[{ required: true, message: '请填写登录密码' }]"
+        >
+          <el-input v-model="loginFrom.password" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="loginBox = false">前往注册</el-button>
+          <el-button type="primary" @click="userLogin()"> 登录 </el-button>
+        </span>
+      </template>
+    </el-dialog>
+
+    <el-dialog
+      v-model="registerBox"
+      title="新用户注册"
+      width="400px"
+      custom-class="custom-dialog"
+      :close-on-click-modal="false"
+      :before-close="handleCloseRegister"
+    >
+      <el-form :model="registerFrom" ref="registerFromEl" label-width="100px">
+        <el-form-item
+          label="账户："
+          prop="account"
+          :rules="[{ required: true, message: '请填写登录账户' }]"
+        >
+          <el-input v-model="registerFrom.account" />
+        </el-form-item>
+
+        <el-form-item
+          label="密码："
+          prop="account"
+          :rules="[{ required: true, message: '请填写登录密码' }]"
+        >
+          <el-input v-model="registerFrom.password" />
+        </el-form-item>
+        <el-form-item
+          label="QQ："
+          prop="qq"
+          :rules="[{ required: true, message: '请填写QQ' }]"
+        >
+          <el-input v-model="registerFrom.qq" />
+        </el-form-item>
+        <el-form-item
+          label="权限链接："
+          prop="referer"
+          :rules="[{ required: true, message: '请填写权限链接' }]"
+        >
+          <el-input v-model="registerFrom.referer" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="registerBox = false">前往登录</el-button>
+          <el-button type="primary" @click="register()">注册 </el-button>
+        </span>
+      </template>
+    </el-dialog>
+  </div>
+</template>
+<script>
+import { reactive, toRefs, ref } from "vue";
+import { login } from "@/api/login";
+import { TElNotification } from "@/utils/inform";
+import { useStore } from "vuex";
+import { ElMessageBox } from "element-plus";
+import { speedToolSavaInfo } from "../../api/speedTool";
+export default {
+  props: {
+    loginBox: {
+      type: Boolean,
+      default: () => {
+        return false;
+      },
+    },
+    registerBox: {
+      type: Boolean,
+      default: () => {
+        return false;
+      },
+    },
+  },
+  emits: ["openLoginBox", "getList", "openRegisterBox"],
+  setup(props, { emit }) {
+    const loginFromEl = ref();
+    const registerFromEl = ref();
+    const store = useStore();
+    let state = reactive({
+      loginFrom: {
+        account: "",
+        password: "",
+      },
+      registerFrom: {
+        account: "",
+        password: "",
+        qq: "",
+        referer:
+          "https://bang.qq.com/app/speed/card/userbag?serverName=&areaName=%E7%94%B5%E4%BF%A1%E5%8C%BA&roleName=THyo&appid=1105330667&nickname=THyo&isMainRole=1&appOpenid=E985DFB4B43FE1956B6EFB162DFA88D1&areaId=1&roleId=522307026&gameId=10013&toUin=522307026&serverId=0&accessToken=5A1BAE087966B0C48B8BF28754B13AD0&roleJob=&token=wrMCRZSN&uniqueRoleId=172012672&toOpenid=E985DFB4B43FE1956B6EFB162DFA88D1&acctype=qc&accType=qc&uin=522307026&roleLevel=131&userId=77634875",
+      },
+    });
+
+    let userLogin = () => {
+      loginFromEl.value.validate((valid) => {
+        if (valid) {
+          login(state.loginFrom).then((res) => {
+            if (res.code == 200) {
+              store.commit("setReset");
+              TElNotification("登录成功！");
+              store.commit("setUserInfo", res.data);
+              emit("openLoginBox", false, () => {
+                emit("getList");
+              });
+            } else {
+              ElMessageBox.confirm(`Sorry,${res.message}`, "网站提示", {
+                confirmButtonText: "知道了",
+                showCancelButton: false,
+                type: "warning",
+              });
+            }
+          });
+        } else {
+        }
+      });
+    };
+
+    const handleClose = (done) => {
+      emit("openLoginBox", false);
+    };
+    const handleCloseRegister = (done) => {
+      emit("openRegisterBox", false);
+    };
+
+    const register = () => {
+      registerFromEl.value.validate((valid) => {
+        if (valid) {
+          //权限链接校验
+          let obj = {};
+          state.registerFrom.referer
+            .split("?")[1]
+            .split("&")
+            .forEach((v) => {
+              let arr = v.split("=");
+              obj[arr[0]] = arr[1];
+            });
+
+          let data = { ...state.registerFrom, ...obj };
+          speedToolSavaInfo(data).then((res) => {
+            if (res.code == 200) {
+              TElNotification("注册成功！");
+              emit("openRegisterBox", false);
+              emit("openLoginBox", true);
+            } else {
+              ElMessageBox.confirm(`Sorry,${res.message}`, "网站提示", {
+                confirmButtonText: "知道了",
+                showCancelButton: false,
+                type: "warning",
+              });
+            }
+          });
+        }
+      });
+    };
+    return {
+      ...toRefs(state),
+      userLogin,
+      loginFromEl,
+      registerFromEl,
+      handleClose,
+      handleCloseRegister,
+      register,
+    };
+  },
+};
+</script>
+<style lang="less" scoped>
+</style>

@@ -10,7 +10,7 @@ public interface UserService {
 
     public PageVo getUsetList(Integer page, Integer pageSzie);
 
-    public void addUser(User user);
+    public int addUser(User user);
 
     public void upUser(User user);
 

@@ -2,6 +2,7 @@ package com.blogs.config;
 
 import com.blogs.interceptor.LoginInterceptor;
 import com.blogs.interceptor.TestInterceptor;
+import okhttp3.OkHttpClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -27,6 +28,10 @@ public class WebConfig implements WebMvcConfigurer {
         return new TestInterceptor();
     }
 
+    @Bean
+    public OkHttpClient okHttpClient() {
+        return new OkHttpClient();
+    }
 
 
     @Override

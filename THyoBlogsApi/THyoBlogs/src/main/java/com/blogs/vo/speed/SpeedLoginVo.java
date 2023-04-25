@@ -1,6 +1,10 @@
 package com.blogs.vo.speed;
 
-public class loginVo {
+
+import lombok.Data;
+
+@Data
+public class SpeedLoginVo {
     private String password;
     private String account;
 }

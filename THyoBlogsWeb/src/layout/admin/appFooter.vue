@@ -1,6 +1,8 @@
 <template>
   <div class="footer">
-    <div>渝ICP备2022011798号</div>
+    <div>
+      <a href="https://beian.miit.gov.cn">渝ICP备2022011798号</a>
+    </div>
   </div>
 </template>
 <script>
@@ -15,5 +17,8 @@ export default {};
   background-image: linear-gradient(to bottom, transparent, rgb(212, 212, 212));
   color: #006eff;
   letter-spacing: 1px;
+  a {
+    color: #006eff;
+  }
 }
 </style>

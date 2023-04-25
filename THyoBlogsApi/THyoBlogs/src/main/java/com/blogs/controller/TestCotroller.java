@@ -1,19 +1,32 @@
 package com.blogs.controller;
 
 
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.blogs.annotation.AnnotationTest;
 import com.blogs.annotation.Token;
 import com.blogs.model.test.Test;
 import com.blogs.service.TestService;
 import com.blogs.vo.common.R;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import okhttp3.*;
+import okhttp3.ResponseBody;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import sun.plugin.javascript.navig.Array;
 
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/test")
@@ -22,6 +35,9 @@ import javax.servlet.http.HttpServletRequest;
 public class TestCotroller {
     @Autowired
     TestService testService;
+
+    @Autowired
+    private OkHttpClient okHttpClient;
 
 
     @ApiOperation(value = "根据ID查询用户")
@@ -86,6 +102,50 @@ public class TestCotroller {
         }
 
         return R.failed(401,"秒杀失败");
+    }
+
+
+    @ApiOperation(value = "并发请求测试")
+    @GetMapping("/sendDataTest")
+    public R sendDataTest(){
+
+        List<CompletableFuture<Map<String, Object>>> futures = new ArrayList<>();
+
+
+        for (int i = 0; i < 50; i++) {
+            futures.add(fetchUrlAsync("https://www.thyo.xyz//api/expressTools/getQinfo?qq=522307026"));
+        }
+        CompletableFuture<Void> allFutures = CompletableFuture.allOf(
+                futures.toArray(new CompletableFuture[futures.size()])
+        );
+        allFutures.join();
+        List<Map<String, Object>> responses = futures.stream()
+                .map(CompletableFuture::join)
+                .collect(Collectors.toList());
+        return R.succeed(responses);
+    }
+
+
+    private CompletableFuture<Map<String, Object>> fetchUrlAsync(String url) {
+        CompletableFuture<Map<String, Object>> future = new CompletableFuture<>();
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+        okHttpClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String responseBody = response.body().string();
+                ObjectMapper objectMapper = new ObjectMapper();
+                Map<String, Object> map = objectMapper.readValue(responseBody, new TypeReference<Map<String, Object>>() {});
+                future.complete(map);
+            }
+
+            @Override
+            public void onFailure(Call call, IOException e) {
+                future.completeExceptionally(e);
+            }
+        });
+        return future;
     }
 
 }

@@ -3,12 +3,28 @@
     <div class="speed-header top-padding" ref="homeHeader"></div>
     <div class="speed-ctx">
       <div class="tool">
-        <el-button type="primary" size="large" color="#000000"
-          >就 现 在 , 立 刻 加 入 ！</el-button
-        >
-        <el-button type="primary" size="large" color="#000000"
-          >这个有什么用？</el-button
-        >
+        <template v-if="!userInfo.id">
+          <el-button
+            type="primary"
+            size="large"
+            color="#000000"
+            @click="openLoginBox(true)"
+            >登录</el-button
+          >
+          <el-button
+            type="primary"
+            size="large"
+            color="#000000"
+            @click="openRegisterBox(true)"
+            >就 现 在 , 立 刻 加 入 ！</el-button
+          >
+        </template>
+        <el-input v-model="referer" placeholder="请前往掌上APP抓取referer">
+          <template #prepend>我的referer链接</template>
+          <template #append>
+            <el-button>保存</el-button>
+          </template>
+        </el-input>
       </div>
       <div class="list">
         <div class="info-item">
@@ -89,7 +105,7 @@
         </div>
       </div>
     </div>
-
+    <!-- 开启宝箱 -->
     <el-dialog
       v-model="checkOpenBox"
       title="开启宝箱"
@@ -124,12 +140,50 @@
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="checkOpenBox = false">关闭</el-button>
-          <el-button type="primary" @click="openBoxApi()">
-            立即开启
-          </el-button>
+          <el-button type="primary" @click="openBoxApi()"> 立即开启 </el-button>
         </span>
       </template>
     </el-dialog>
+    <!-- 开启宝箱成功返回 -->
+    <el-dialog
+      v-model="succeedBox"
+      title="恭喜获得"
+      width="600px"
+      center
+      :close-on-click-modal="false"
+    >
+      <div class="checkOpenBox">
+        <div
+          class="key-item"
+          v-for="(item, key) in succeedBoxInfo.itemList"
+          :key="key"
+        >
+          <img
+            :src="`https://iips.speed.qq.com/images/${item.avtarid}.png`"
+            alt=""
+          />
+          <p>
+            {{ item.avtarname }} * {{ item.num }}
+            <span v-if="item.expTime > 0">（{{ item.expTime / 24 }}天)</span>
+          </p>
+        </div>
+      </div>
+
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="succeedBox = false">关闭</el-button>
+          <el-button type="primary" @click="openBoxApi()"> 继续开启 </el-button>
+        </span>
+      </template>
+    </el-dialog>
+    <!-- 登录注册 -->
+    <login
+      :loginBox="loginBox"
+      :registerBox="registerBox"
+      @openLoginBox="openLoginBox"
+      @openRegisterBox="openRegisterBox"
+      @getList="getList"
+    />
   </div>
 </template>
 <script>
@@ -140,29 +194,48 @@ import {
   openBoxByKey,
 } from "../api/speedTool";
 import { TElMessage } from "../utils/inform";
+import login from "../components/speed/login.vue";
+import { useStore } from "vuex";
 export default {
+  components: {
+    login,
+  },
   setup() {
+    const store = useStore();
+    let { userInfo } = store.state;
     let state = reactive({
       avatar: [],
       car: [],
       pet: [],
       box: [],
-      checkOpenBox: false,
+      checkOpenBox: false, // 打开宝箱
       atBoxInfo: {},
       atBoInfoKey: {},
+      succeedBoxInfo: {},
+      succeedBox: false,
+      loginBox: false,
+      registerBox: false,
+      referer: "",
     });
-    getUserBagInfo().then((res) => {
-      if (res.code == 200 && !res.data.res) {
-        state.avatar = res.data.data.avatar_list;
-        state.car = res.data.data.car_list;
-        state.pet = res.data.data.pet_list;
-      }
-    });
-    getUserBoxItemInfoV2().then((res) => {
-      if (res.code == 200 && !res.data.res) {
-        state.box = res.data.data.itemList;
-      }
-    });
+
+    let getList = () => {
+      getUserBagInfo().then((res) => {
+        if (res.code == 200 && !res.data.res) {
+          state.avatar = res.data.data.avatar_list;
+          state.car = res.data.data.car_list;
+          state.pet = res.data.data.pet_list;
+        }
+      });
+      getUserBoxItemInfoV2().then((res) => {
+        if (res.code == 200 && !res.data.res) {
+          state.box = res.data.data.itemList;
+        }
+      });
+    };
+    // 如果登录获取数据
+    if (userInfo.id) {
+      getList();
+    }
 
     let userOpenBox = (item, type) => {
       // type:是要用钥匙开启
@@ -195,14 +268,46 @@ export default {
         keyNum1: state.atBoInfoKey.num,
       };
       openBoxByKey(data).then((res) => {
-        console.log(res);
+        if (res.code == 200 && !res.data.data.error_no) {
+          state.checkOpenBox = false;
+          state.succeedBox = true;
+          state.succeedBoxInfo = res.data.data;
+        } else {
+          TElMessage(res.data.data.msg, "warning");
+        }
       });
+    };
+
+    //登录注册功能区
+
+    //打开关闭登录
+    let openLoginBox = (type, fun) => {
+      if (type) {
+        state.loginBox = true;
+      } else {
+        state.loginBox = false;
+        fun && fun();
+      }
+    };
+
+    // 打开关闭注册
+    let openRegisterBox = (type, fun) => {
+      if (type) {
+        state.registerBox = true;
+      } else {
+        state.registerBox = false;
+        fun && fun();
+      }
     };
     return {
       ...toRefs(state),
       userOpenBox,
       hanldBoxKey,
       openBoxApi,
+      openLoginBox,
+      getList,
+      openRegisterBox,
+      userInfo,
     };
   },
 };
@@ -239,6 +344,19 @@ export default {
     display: flex;
     align-items: center;
     opacity: 0.9;
+    :deep(.el-input-group--append) {
+      .el-input-group__prepend {
+        background: #333333;
+        color: #fff;
+        box-shadow: none;
+      }
+      .el-input-group__append {
+        .el-button {
+          background: #333333;
+          color: #fff;
+        }
+      }
+    }
   }
   .list {
     margin-top: 40px;

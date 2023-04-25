@@ -30,3 +30,13 @@ export function openBoxByKey(data) {
         params: data
     })
 }
+
+
+
+export function speedToolSavaInfo(data) {
+    return request({
+        url: `/speedTool/savaInfo`,
+        method: 'post',
+        data
+    })
+}
