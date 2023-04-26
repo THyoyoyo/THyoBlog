@@ -17,6 +17,7 @@ import com.blogs.vo.speed.SavaInfoDto;
 import com.blogs.vo.speed.SpeedLoginVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -32,6 +33,7 @@ import java.util.Map;
 @RestController
 @Api(tags = "QQ飞车工具箱")
 @RequestMapping("/api/speedTool")
+@Slf4j
 public class SpeedApiController {
 
     @Autowired
@@ -61,6 +63,7 @@ public class SpeedApiController {
 
     @ApiOperation(value = "获取背包（赛车，宠物，套餐）信息")
     @GetMapping("/getUserBagInfo")
+    @Token(loginCode = 402)
     public R getUserBagInfo() throws Exception {
         // referer
         Response response = speedToolService.getUserBagInfo();
@@ -69,6 +72,7 @@ public class SpeedApiController {
 
     @ApiOperation(value = "开启宝箱（需要钥匙）")
     @GetMapping("/openBoxByKey")
+    @Token(loginCode = 402)
     public R openBoxByKey(
             @RequestParam("boxId")  Integer  boxId,
             @RequestParam("keyNum1") Integer keyNum1,
@@ -83,6 +87,7 @@ public class SpeedApiController {
 
     @ApiOperation(value = "开启宝箱")
     @GetMapping("/openBox")
+    @Token(loginCode = 402)
     public R openBox(@RequestParam("boxId") Integer boxId) throws Exception {
         //referer boxId
         Response response = speedToolService.openBox(boxId);

@@ -28,7 +28,7 @@
       </el-form>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="loginBox = false">前往注册</el-button>
+          <el-button @click="cutLoginType(0)">前往注册</el-button>
           <el-button type="primary" @click="userLogin()"> 登录 </el-button>
         </span>
       </template>
@@ -75,7 +75,7 @@
       </el-form>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="registerBox = false">前往登录</el-button>
+          <el-button @click="cutLoginType(1)">前往登录</el-button>
           <el-button type="primary" @click="register()">注册 </el-button>
         </span>
       </template>
@@ -118,8 +118,7 @@ export default {
         account: "",
         password: "",
         qq: "",
-        referer:
-          "https://bang.qq.com/app/speed/card/userbag?serverName=&areaName=%E7%94%B5%E4%BF%A1%E5%8C%BA&roleName=THyo&appid=1105330667&nickname=THyo&isMainRole=1&appOpenid=E985DFB4B43FE1956B6EFB162DFA88D1&areaId=1&roleId=522307026&gameId=10013&toUin=522307026&serverId=0&accessToken=5A1BAE087966B0C48B8BF28754B13AD0&roleJob=&token=wrMCRZSN&uniqueRoleId=172012672&toOpenid=E985DFB4B43FE1956B6EFB162DFA88D1&acctype=qc&accType=qc&uin=522307026&roleLevel=131&userId=77634875",
+        referer: " ",
       },
     });
 
@@ -185,6 +184,17 @@ export default {
         }
       });
     };
+
+    //登录与注册切换 0登录 1注册
+    const cutLoginType = (type) => {
+      if (type) {
+        emit("openRegisterBox", false);
+        emit("openLoginBox", true);
+      } else {
+        emit("openLoginBox", false);
+        emit("openRegisterBox", true);
+      }
+    };
     return {
       ...toRefs(state),
       userLogin,
@@ -193,6 +203,7 @@ export default {
       handleClose,
       handleCloseRegister,
       register,
+      cutLoginType,
     };
   },
 };

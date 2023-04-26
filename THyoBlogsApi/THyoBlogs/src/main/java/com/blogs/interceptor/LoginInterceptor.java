@@ -1,28 +1,22 @@
 package com.blogs.interceptor;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.blogs.annotation.AnnotationTest;
+import com.alibaba.fastjson.JSONObject;
 import com.blogs.annotation.Token;
 import com.blogs.exception.authorityException;
-import com.blogs.mapper.user.UserMapper;
-import com.blogs.model.user.User;
 import com.blogs.service.SystemService;
 import com.blogs.service.UserService;
 import com.blogs.util.CookieUtil;
 import com.blogs.util.JWTUtil;
 import com.blogs.vo.user.UserVo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.lang.Nullable;
-import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;

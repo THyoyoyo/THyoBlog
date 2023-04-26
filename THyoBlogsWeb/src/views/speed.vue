@@ -390,6 +390,7 @@ export default {
       openRegisterBox,
       userInfo,
       setReferer,
+      getReferer,
       openBoxApi,
     };
   },
@@ -463,7 +464,7 @@ export default {
         background-size: 300%;
         animation: backMove 8s linear infinite;
         border-radius: 3px;
-        span{
+        span {
           display: inline-block;
           margin-right: 100px;
         }

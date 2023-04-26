@@ -113,16 +113,16 @@ public class LoginController {
 
         //查找用户是否已存在
         QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
-        userQueryWrapper.eq("account",qq).last("LIMIT 0,1");
+        userQueryWrapper.eq("account","QQ"+qq).last("LIMIT 0,1");
         User user = userMapper.selectOne(userQueryWrapper);
 
         if (user == null){
             //新建
             user = new User();
-            user.setAccount(qq);
+            user.setAccount("QQ"+qq);
             user.setHead(qqInfo.get("qlogo").toString());
             user.setName(qqInfo.get("name").toString());
-            user.setPassword("");
+            user.setPassword("123456");
             user.setState("1");
             user.setRoleId(8);
             user.setCreationTime(new Date());
