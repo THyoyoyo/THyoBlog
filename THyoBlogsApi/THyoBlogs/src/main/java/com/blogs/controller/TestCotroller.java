@@ -24,6 +24,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 @RestController
@@ -123,7 +126,6 @@ public class TestCotroller {
         return R.succeed(responses);
     }
 
-
     private CompletableFuture<Map<String, Object>> fetchUrlAsync(String url) {
         CompletableFuture<Map<String, Object>> future = new CompletableFuture<>();
         Request request = new Request.Builder()
@@ -146,4 +148,54 @@ public class TestCotroller {
         return future;
     }
 
-}
+
+
+    @ApiOperation(value = "线程test")
+    @PostMapping("/testH")
+    public void testH() {
+
+
+        
+
+        int NUM_USERS = 10;
+        int THREAD_POOL_SIZE = 10;
+
+        // 创建一个任务列表
+        List<Runnable> tasks = new ArrayList<>();
+        for (int i = 0; i < NUM_USERS; i++) {
+            final int userId = i;
+            tasks.add(() -> {
+                // 这里是每个用户需要执行的业务逻辑
+                System.out.println("User " + userId + " is executing business logic");
+            });
+        }
+
+        // 创建线程池并提交所有任务
+        ExecutorService executor = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
+        CountDownLatch latch = new CountDownLatch(NUM_USERS);
+        for (Runnable task : tasks) {
+            executor.submit(() -> {
+                try {
+                    task.run();
+                } finally {
+                    latch.countDown();
+                }
+            });
+        }
+
+        // 等待所有任务完成
+        try {
+            latch.await();
+
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("线程ERR", e);
+        } finally {
+            executor.shutdown();
+        }
+    }
+    }
+
+
+
+

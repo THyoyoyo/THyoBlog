@@ -1,10 +1,12 @@
 package com.blogs.model.speed;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import io.swagger.models.auth.In;
 import lombok.Data;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -46,6 +48,12 @@ public class SpeedInfo implements Serializable {
      */
     @ApiModelProperty(value = "账号信息URL")
     private String referer;
+
+    @ApiModelProperty(value = "状态")
+    private Integer state;
+
+    @ApiModelProperty(value = "上次更新时间")
+    private Date upTime;
 
 	@Nullable
     private String serverName;

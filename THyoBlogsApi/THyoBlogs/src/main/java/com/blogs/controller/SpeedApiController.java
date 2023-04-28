@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -171,6 +172,25 @@ public class SpeedApiController {
     @PostMapping("/setTimingTask")
     public R setTimingTask(){
         return R.succeed();
+    }
+
+
+
+    @ApiOperation(value = "批量开启宝箱")
+    @GetMapping("/openBoxByKeyV2")
+    @Token(loginCode = 402)
+    public R openBoxByKeyV2(  @RequestParam("boxId")  Integer  boxId,
+                              @RequestParam("boxId")  Integer  openNum,
+                              @RequestParam("keyNum1") Integer keyNum1,
+                              @RequestParam("keyId1")   Integer keyId1) throws Exception {
+
+        Integer userId = CurrentUserUtil.getUserId();
+
+        SpeedInfo speedInfo = speedToolService.SpeedInfoByUserId(userId);
+
+        List<Map<String, Object>> maps = speedToolService.asyncOpenBoxByKey(speedInfo, openNum, keyId1, keyNum1, boxId);
+
+        return R.succeed(maps);
     }
 
 }

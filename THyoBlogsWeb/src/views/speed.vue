@@ -153,6 +153,10 @@
           <el-button type="primary" @click="openBoxKeyApi()">
             立即开启
           </el-button>
+          <!-- <div class="openNumBtb">
+            <el-input-number v-model="openNum" :min="1" :max="99" />
+            <el-button type="primary"> 批量开启 </el-button>
+          </div> -->
         </span>
       </template>
     </el-dialog>
@@ -242,6 +246,7 @@ export default {
       registerBox: false,
       referer: "",
       UserBagInfo: {},
+      openNum: 1,
     });
     // ---------------------初始数据区---------------------
 
@@ -545,6 +550,17 @@ export default {
   }
   .at-key-item {
     border: 3px solid #ff2424;
+  }
+}
+
+:deep(.openNumBtb) {
+  margin-left: 10px;
+  display: inline-block;
+  .el-input-number {
+    width: 110px;
+    border: none;
+  }
+  .el-input {
   }
 }
 </style>

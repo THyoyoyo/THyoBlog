@@ -3,18 +3,32 @@ package com.blogs.task;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.blogs.mapper.TyUserInfo.TyUserInfoMapper;
+import com.blogs.mapper.speed.SpeedInfoMapper;
 import com.blogs.model.TyUserInfo.TyUserInfo;
 import com.blogs.model.expressTools.StopTyTime;
+import com.blogs.model.speed.SpeedInfo;
 import com.blogs.service.ExpressToolsService;
+import com.blogs.service.SpeedToolService;
 import com.blogs.service.TyGameService;
+import com.blogs.vo.common.R;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import okhttp3.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.xml.crypto.Data;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 @Component
 public class ScheduledService {
@@ -27,6 +41,16 @@ public class ScheduledService {
 
      @Autowired
      TyUserInfoMapper tyUserInfoMapper;
+
+     @Autowired
+    SpeedInfoMapper speedInfoMapper;
+
+     @Autowired
+     SpeedToolService speedToolService;
+
+
+    @Autowired
+    private OkHttpClient okHttpClient;
 
 
     /**
@@ -62,5 +86,59 @@ public class ScheduledService {
     }
 
 
+
+
+    @Scheduled(cron = "0 0 0 * * *")
+    private  void speedAutoKeyBox(){
+
+
+        QueryWrapper<SpeedInfo> speedInfoQueryWrapper = new QueryWrapper<>();
+        speedInfoQueryWrapper.eq("state",1);
+        List<SpeedInfo> speedInfos = speedInfoMapper.selectList(speedInfoQueryWrapper);
+
+
+        int THREAD_POOL_SIZE = speedInfos.size();
+
+        // 创建一个任务列表
+        List<Runnable> tasks = new ArrayList<>();
+
+        for (SpeedInfo speedInfo : speedInfos) {
+            tasks.add(() -> {
+                try {
+                    speedToolService.asyncOpenBoxByKey(speedInfo,40,17456,2,17455);
+                    speedInfo.setUpTime(new Date());
+                    speedInfoMapper.updateById(speedInfo);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        }
+
+
+        // 创建线程池并提交所有任务
+        ExecutorService executor = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
+        CountDownLatch latch = new CountDownLatch(THREAD_POOL_SIZE);
+        for (Runnable task : tasks) {
+            executor.submit(() -> {
+                try {
+                    task.run();
+                } finally {
+                    latch.countDown();
+                }
+            });
+        }
+
+        // 等待所有任务完成
+        try {
+            latch.await();
+
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("线程ERR", e);
+        } finally {
+            executor.shutdown();
+        }
+
+    }
 
 }
