@@ -6,7 +6,10 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
   jackson:
     date-format: yyy-MM-dd HH:mm:ss
-    time-zone: GMT+8
+    time-zone: Asia/Shanghai
+  task:
+    scheduling:
+      timezone: Asia/Shanghai
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
@@ -25,3 +28,9 @@ mybatis-plus:
     map-underscore-to-camel-case: true
 server:
   port: 8081
+logging:
+    level:
+      root: info
+      com.at.blogs.mapper: DEBUG
+    file:
+      path: /log

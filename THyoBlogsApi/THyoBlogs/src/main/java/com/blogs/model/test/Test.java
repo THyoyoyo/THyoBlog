@@ -8,6 +8,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.Date;
 
 @TableName("test")
 @Data
@@ -25,4 +26,7 @@ public class Test  implements Serializable {
 
     @ApiModelProperty(value = "数量")
     private  Integer num;
+
+    @ApiModelProperty(value = "时间")
+    private Date time;
 }

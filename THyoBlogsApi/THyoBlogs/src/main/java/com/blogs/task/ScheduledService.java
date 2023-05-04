@@ -88,7 +88,7 @@ public class ScheduledService {
 
 
 
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "0 0 0 * * ?")
     private  void speedAutoKeyBox(){
 
 
