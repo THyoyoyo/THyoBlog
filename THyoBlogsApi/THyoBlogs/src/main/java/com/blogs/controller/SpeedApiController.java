@@ -14,6 +14,7 @@ import com.blogs.service.UserService;
 import com.blogs.util.CurrentUserUtil;
 import com.blogs.vo.common.R;
 import com.blogs.vo.speed.SavaInfoDto;
+import com.blogs.vo.speed.SetAutoBoxInfoVo;
 import com.blogs.vo.speed.SpeedLoginVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -180,7 +181,7 @@ public class SpeedApiController {
     @GetMapping("/openBoxByKeyV2")
     @Token(loginCode = 402)
     public R openBoxByKeyV2(  @RequestParam("boxId")  Integer  boxId,
-                              @RequestParam("boxId")  Integer  openNum,
+                              @RequestParam(value = "openNum",defaultValue = "1")  Integer  openNum,
                               @RequestParam("keyNum1") Integer keyNum1,
                               @RequestParam("keyId1")   Integer keyId1) throws Exception {
 
@@ -193,4 +194,39 @@ public class SpeedApiController {
         return R.succeed(maps);
     }
 
+
+    @ApiOperation(value = "启动关闭")
+    @GetMapping("upstate")
+    @Token(loginCode = 402)
+    public R upstate() throws Exception {
+        Integer userId = CurrentUserUtil.getUserId();
+        QueryWrapper<SpeedInfo> speedInfoQueryWrapper = new QueryWrapper<>();
+        speedInfoQueryWrapper.eq("speed_user_id",userId);
+        SpeedInfo speedInfo = speedInfoMapper.selectOne(speedInfoQueryWrapper);
+        if (speedInfo.getState().equals(1)){
+            speedInfo.setState(0);
+        }else{
+            speedInfo.setState(1);
+        }
+        speedInfoMapper.updateById(speedInfo);
+        return R.succeed();
+    }
+
+    @ApiOperation(value = "设置自动开启宝箱")
+    @PostMapping("setAutoBoxInfo")
+    @Token(loginCode = 402)
+    public R setAutoBoxInfo(@RequestBody SetAutoBoxInfoVo dto) throws Exception {
+        Integer userId = CurrentUserUtil.getUserId();
+        QueryWrapper<SpeedInfo> speedInfoQueryWrapper = new QueryWrapper<>();
+        speedInfoQueryWrapper.eq("speed_user_id",userId);
+        SpeedInfo speedInfo = speedInfoMapper.selectOne(speedInfoQueryWrapper);
+
+        speedInfo.setBoxId(dto.getBoxId());
+        speedInfo.setOpenNum(dto.getOpenNum());
+        speedInfo.setKeyId1(dto.getKeyId1());
+        speedInfo.setKeyNum1(dto.getKeyNum1());
+        speedInfoMapper.updateById(speedInfo);
+
+        return R.succeed();
+    }
 }

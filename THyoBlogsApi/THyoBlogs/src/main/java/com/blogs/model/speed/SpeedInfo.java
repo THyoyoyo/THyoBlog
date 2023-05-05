@@ -55,6 +55,20 @@ public class SpeedInfo implements Serializable {
     @ApiModelProperty(value = "上次更新时间")
     private Date upTime;
 
+
+    @ApiModelProperty(value = "宝箱ID")
+    private Integer boxId;
+
+    @ApiModelProperty(value = "开启数量")
+    private Integer openNum;
+
+    @ApiModelProperty(value = "需要钥匙数量")
+    private Integer keyNum1;
+
+    @ApiModelProperty(value = "钥匙ID")
+    private Integer keyId1;
+
+
 	@Nullable
     private String serverName;
     private String areaName;

@@ -105,7 +105,7 @@ public class ScheduledService {
         for (SpeedInfo speedInfo : speedInfos) {
             tasks.add(() -> {
                 try {
-                    speedToolService.asyncOpenBoxByKey(speedInfo,40,17456,2,17455);
+                    speedToolService.asyncOpenBoxByKey(speedInfo,speedInfo.getOpenNum(),speedInfo.getKeyId1(),speedInfo.getKeyNum1(),speedInfo.getBoxId());
                     speedInfo.setUpTime(new Date());
                     speedInfoMapper.updateById(speedInfo);
                 } catch (Exception e) {

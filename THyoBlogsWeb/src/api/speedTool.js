@@ -56,3 +56,20 @@ export function speedToolSavaInfo(data) {
         data
     })
 }
+
+
+export function speedToolUpstate() {
+    return request({
+        url: `/speedTool/upstate`,
+        method: 'get',
+    })
+}
+
+
+export function speedToolSetAutoBoxInfo(data) {
+    return request({
+        url: `/speedTool/setAutoBoxInfo`,
+        method: 'post',
+        data
+    })
+}

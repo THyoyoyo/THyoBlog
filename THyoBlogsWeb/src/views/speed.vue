@@ -19,22 +19,34 @@
             >就 现 在 , 立 刻 加 入 ！</el-button
           >
         </template>
-        <el-input
-          v-else
-          v-model="referer"
-          placeholder="请前往掌上APP抓取referer"
-        >
-          <template #prepend>我的referer链接</template>
-          <template #append>
-            <el-button @click="setReferer()">保存</el-button>
-          </template>
-        </el-input>
+        <template v-else>
+          <div class="tool-item w600">
+            <el-input v-model="referer" placeholder="请前往掌上APP抓取referer">
+              <template #prepend>我的referer链接</template>
+              <template #append>
+                <el-button @click="setReferer()">保存</el-button>
+              </template>
+            </el-input>
+          </div>
+          <div class="tool-item">
+            <el-button type="primary" color="#333333" @click="setState()">
+              <span v-if="info.state">关闭定时任务</span>
+              <span v-else>启动定时任务</span>
+            </el-button>
+          </div>
+        </template>
       </div>
       <div class="list">
         <div class="info-item">
           <div class="info-item-title">
             <span>点券：{{ UserBagInfo.super_money }}</span>
             <span>消费券：{{ UserBagInfo.coupons }}</span>
+
+            <span style="color: red" v-if="autoBoxInfo"
+              >定时任务宝箱&数量：{{ autoBoxInfo.name }}（{{
+                autoBoxInfo.num
+              }}）</span
+            >
           </div>
         </div>
         <div class="info-item">
@@ -153,10 +165,14 @@
           <el-button type="primary" @click="openBoxKeyApi()">
             立即开启
           </el-button>
-          <!-- <div class="openNumBtb">
-            <el-input-number v-model="openNum" :min="1" :max="99" />
-            <el-button type="primary"> 批量开启 </el-button>
-          </div> -->
+          <div class="dialog-footer-btn-flex">
+            <div class="flex-box">
+              <el-input-number v-model="openNum" :min="1" :max="99" />
+              <el-button type="primary" @click="setAutoBoxById()">
+                设置定时开启宝箱
+              </el-button>
+            </div>
+          </div>
         </span>
       </template>
     </el-dialog>
@@ -217,6 +233,8 @@ import {
   getRefererInfo,
   upReferer,
   openBox,
+  speedToolUpstate,
+  speedToolSetAutoBoxInfo,
 } from "../api/speedTool";
 import { TElMessage } from "../utils/inform";
 import login from "../components/speed/login.vue";
@@ -247,6 +265,7 @@ export default {
       referer: "",
       UserBagInfo: {},
       openNum: 1,
+      info: {},
     });
     // ---------------------初始数据区---------------------
 
@@ -270,9 +289,13 @@ export default {
       getRefererInfo().then((res) => {
         if (res.code == 200) {
           state.referer = res.data.referer;
+          state.info = res.data;
+
+          // 回显定时任务宝箱
         }
       });
     };
+
     // 如果登录获取数据
     if (userInfo.value.id) {
       getList();
@@ -339,6 +362,13 @@ export default {
       });
     };
 
+    let autoBoxInfo = computed(() => {
+      let info = state.box.find((v) => v.boxid == state.info.boxId);
+      if (info) {
+        return { name: info.name, num: state.info.openNum };
+      }
+      return;
+    });
     //------------------登录注册功能区-----------------
     //打开关闭登录
     let openLoginBox = (type, fun) => {
@@ -385,8 +415,35 @@ export default {
       }
     };
 
+    // 启动、关闭
+    let setState = () => {
+      speedToolUpstate().then((res) => {
+        if (res.code == 200) {
+          state.info.state = state.info.state == 1 ? 0 : 1;
+          TElMessage("已更新");
+        }
+      });
+    };
+
+    // 设置自动开启宝箱
+    let setAutoBoxById = () => {
+      let data = {
+        boxId: state.atBoxInfo.boxid,
+        keyId1: state.atBoInfoKey.keyid,
+        keyNum1: state.atBoInfoKey.num,
+        openNum: state.openNum,
+      };
+      speedToolSetAutoBoxInfo(data).then((res) => {
+        if (res.code == 200) {
+          TElMessage("设置成功！");
+        }
+      });
+    };
+
     return {
       ...toRefs(state),
+      setAutoBoxById,
+      setState,
       userOpenBox,
       hanldBoxKey,
       openBoxKeyApi,
@@ -397,6 +454,7 @@ export default {
       setReferer,
       getReferer,
       openBoxApi,
+      autoBoxInfo,
     };
   },
 };
@@ -445,6 +503,18 @@ export default {
           color: #fff;
         }
       }
+    }
+    .w600 {
+      width: 600px;
+    }
+    .tool-item {
+      margin-right: 20px;
+    }
+    .select-box {
+      :deep(.el-select) {
+        width: 180px;
+      }
+      display: flex;
     }
   }
   .list {
@@ -552,15 +622,28 @@ export default {
     border: 3px solid #ff2424;
   }
 }
-
-:deep(.openNumBtb) {
+.dialog-footer-btn-flex {
   margin-left: 10px;
   display: inline-block;
-  .el-input-number {
-    width: 110px;
-    border: none;
+  transform: translateY(2px);
+  .flex-box {
+    display: flex;
   }
-  .el-input {
+  :deep(.el-input-number) {
+    width: 110px;
+    .el-input {
+      line-height: normal;
+    }
+  }
+}
+</style>
+
+<style lang="less" scoped>
+.select-box-option-item {
+  display: flex;
+  align-items: center;
+  img {
+    height: 30px;
   }
 }
 </style>
