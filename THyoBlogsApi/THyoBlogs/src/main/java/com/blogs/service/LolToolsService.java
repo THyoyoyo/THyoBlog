@@ -1,2 +1,13 @@
-package com.blogs.service;public interface LolToolsService {
+package com.blogs.service;
+
+import okhttp3.Response;
+
+import java.io.IOException;
+
+public interface LolToolsService {
+    public Response getBattleList() throws IOException;
+
+    public Response getOnlineStatus() throws IOException;
+
+    public Response userProfileInfo() throws IOException;
 }

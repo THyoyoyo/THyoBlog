@@ -45,5 +45,11 @@ export const serverRouter = [
         name: "speed",
         component: () => import('../views/speed.vue'),
         meta: { index: 1 }
+    },
+    {
+        path: "j",
+        name: "j",
+        component: () => import('../views/j.vue'),
+        meta: { index: 1 }
     }
 ]

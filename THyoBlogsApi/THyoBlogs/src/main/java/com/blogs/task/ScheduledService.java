@@ -15,6 +15,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -31,6 +32,7 @@ import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 @Component
+@EnableAsync
 public class ScheduledService {
 
      @Autowired
@@ -88,7 +90,7 @@ public class ScheduledService {
 
 
 
-    @Scheduled(cron = "0 0 0 * * ?")
+    @Scheduled(cron = "59 59 23 * * ?",zone = "Asia/Shanghai")
     private  void speedAutoKeyBox(){
 
 
