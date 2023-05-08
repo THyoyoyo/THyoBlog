@@ -12,68 +12,139 @@
           </div>
         </div>
       </div>
-      <el-table :data="battleList" style="width: 100%">
-        <el-table-column prop="game_id" label="ID" width="180" align="center" />
-        <el-table-column
-          prop="champion_id"
-          label="使用英雄"
-          width="180"
-          align="center"
-        >
-          <template #default="scope">
-            <div>
-              <img
-                style="width: 50px"
-                :src="`http://218.201.39.185:49155/down.qq.com/lolapp/lol/hero/head/${scope.row.champion_id}.png`"
-                alt=""
-              />
-            </div>
-          </template>
-        </el-table-column>
-        <el-table-column
-          prop="battle_time"
-          label="对局开始时间"
-          width="180"
-          align="center"
-        />
-        <el-table-column
-          prop="game_mode_name"
-          label="模式"
-          width="180"
-          align="center"
-        />
-        <el-table-column
-          prop="champions_killed"
-          label="击杀"
-          width="180"
-          align="center"
-        />
-        <el-table-column
-          prop="num_deaths"
-          label="死亡"
-          width="180"
-          align="center"
-        />
-        <el-table-column
-          prop="assists"
-          label="助攻"
-          width="180"
-          align="center"
-        />
-        <el-table-column prop="score" label="评分" align="center" />
-      </el-table>
+
+      <div class="table">
+        <div class="table-l">
+          <p class="table-title">召唤师峡谷对局记录</p>
+          <el-table :data="battleList">
+            <el-table-column
+              prop="game_id"
+              label="ID"
+              width="120"
+              align="center"
+            />
+            <el-table-column
+              prop="champion_id"
+              label="使用英雄"
+              width="80"
+              align="center"
+            >
+              <template #default="scope">
+                <div>
+                  <img
+                    style="width: 40px"
+                    :src="`http://218.201.39.185:49155/down.qq.com/lolapp/lol/hero/head/${scope.row.champion_id}.png`"
+                    alt=""
+                  />
+                </div>
+              </template>
+            </el-table-column>
+            <el-table-column
+              prop="battle_time"
+              label="开始时间"
+              width="160"
+              align="center"
+            />
+            <el-table-column
+              prop="game_mode_name"
+              label="模式"
+              width="80"
+              align="center"
+            />
+            <el-table-column
+              prop="champions_killed"
+              label="击杀"
+              width="70"
+              align="center"
+            />
+            <el-table-column
+              prop="num_deaths"
+              label="死亡"
+              width="70"
+              align="center"
+            />
+            <el-table-column
+              prop="assists"
+              label="助攻"
+              width="70"
+              align="center"
+            />
+            <el-table-column prop="score" label="评分" align="center" />
+          </el-table>
+        </div>
+        <div class="table-r">
+          <p class="table-title">云顶之弈对局记录</p>
+          <el-table :data="exploitList">
+            <el-table-column
+              prop="exploit_id"
+              label="ID"
+              width="120"
+              align="center"
+            />
+            <el-table-column
+              prop="game_match_type_name"
+              label="开始时间"
+              width="160"
+              align="center"
+            >
+              <template #default="scope">
+                <span>{{ timestampToDatetimeFun(scope.row.end_time) }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column
+              prop="game_match_type_name"
+              label="模式"
+              width="80"
+              align="center"
+            >
+            </el-table-column>
+            <el-table-column
+              prop="game_match_type_name"
+              label="名次"
+              width="80"
+              align="center"
+            >
+              <template #default="scope">
+                <span>{{ scope.row.specific_user_exploit.ranking }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="battle_time" label="阵营" align="center">
+              <template #default="scope">
+                <div>
+                  <img
+                    v-for="(item, key) in scope.row.specific_user_exploit
+                      .piece_list"
+                    :key="key"
+                    style="width: 40px; margin-right: 3px"
+                    :src="`http://game.gtimg.cn/images/lol/tft/cham-icons/${item.piece_id}.png`"
+                    alt=""
+                  />
+                </div>
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 <script>
-import { reactive, toRefs } from "vue";
-import { getBattleList, getOnlineStatus, userProfileInfo } from "../api/lol";
+import { reactive, ref, toRefs } from "vue";
+import { timestampToDatetime } from "../utils/common";
+import {
+  getBattleList,
+  getOnlineStatus,
+  userProfileInfo,
+  getExploitBattleList,
+} from "../api/lol";
 export default {
   setup(props) {
+    let timestampToDatetimeFun = ref(timestampToDatetime);
     let state = reactive({
       battleList: [],
       onlineInfo: {},
       userInfo: {},
+      exploitList: [],
     });
     getBattleList().then((res) => {
       state.battleList = res.data.data.player_battle_brief_list;
@@ -86,7 +157,11 @@ export default {
     userProfileInfo().then((res) => {
       state.userInfo = res.data.data[0];
     });
+    getExploitBattleList().then((res) => {
+      state.exploitList = res.data.data.exploit_list;
+    });
     return {
+      timestampToDatetimeFun,
       ...toRefs(state),
     };
   },
@@ -113,11 +188,11 @@ export default {
 
   .speed-ctx {
     position: relative;
-    padding-top: 80px;
     z-index: 0;
     padding: 80px 30px 0 30px;
+    box-sizing: border-box;
     .list {
-      margin-top: 40px;
+      margin-top: 10px;
       .info-item {
         margin-top: 20px;
         box-sizing: border-box;
@@ -176,6 +251,29 @@ export default {
       }
       .open-box {
         cursor: pointer;
+      }
+    }
+    .table {
+      display: flex;
+      gap: 30px;
+      .table-l {
+        flex: none;
+        width: 750px;
+        border: 1px solid #ebeef5;
+      }
+      .table-r {
+        flex: none;
+        width: calc(100% - 784px);
+        border: 1px solid #ebeef5;
+      }
+      .table-title {
+        background: #fff;
+        text-align: center;
+        line-height: 60px;
+        border-bottom: 1px solid #ebeef5;
+        font-size: 20px;
+        font-weight: 700;
+        letter-spacing: 1px;
       }
     }
   }

@@ -107,4 +107,25 @@ public class LolToolsServiceImpl implements LolToolsService {
 
         return  response;
     }
+
+    @Override
+    public Response getExploitBattleList() throws IOException {
+
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("scene","v3_QdZUZ-XOZIKC0yWq8kDYTndrBYDyeI_HDrhKQVuXkazHvln8EhvJY9-H1TMt6dBj33iKKM8Kl6PC6Aek7trTNC17UG1eeiHycxApezjjD4s=");
+        requestBody.put("filter","all");
+        MediaType mediaType = MediaType.parse("application/json");
+
+        okhttp3.RequestBody body = okhttp3.RequestBody.create(mediaType, JSON.toJSONString(requestBody));
+        Request request = new Request.Builder()
+                .url("https://mlol.qt.qq.com/go/exploit/get_battle_list?plat=ios&version=10000")
+                .method("POST", body)
+                .addHeader("GH-HEADER", "1-2-105-961-522307026")
+                .addHeader("User-Agent", "QTL/9.6.1 (iPhone; IOS 16.1.2; Scale/3.00)")
+                .addHeader("Cookie", "tgw_l7_route=8dad33cd14f6475f74b56fa7a6119541; uin=o522307026; skey=MFH2nwa4r1; acctype=; userId=91c51f8c-81ab-4d75-a09c-011a7fef26c4; tid=B10AEB33C255398DBE86CC332E06606D2C0DA5BED781E83F8C7C2F754DA7ACA19B086BF9CEA1447853EA9BF1476EAB29CCCCE0867672F95D969EABA773E8F9AC3609BA67A2BFF79910A31782C8ECC80357FE9664114241C44ADEBAA98372DDC27231C2E9568B01974D9C56D7852B8EFAF6819A15D4B649942F038579AC23E4026F7ED96A4A621342F0C72488FAEB1B24A4C4BD8B190B5091022FD7F53F8CD7D1; clientType=10; accountType=1")
+                .build();
+        Response response = okHttpClient.newCall(request).execute();
+
+        return  response;
+    }
 }

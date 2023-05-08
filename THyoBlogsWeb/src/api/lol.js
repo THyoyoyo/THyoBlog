@@ -24,3 +24,11 @@ export function userProfileInfo() {
         method: 'get',
     })
 }
+
+
+export function getExploitBattleList() {
+    return request({
+        url: `/LolTool/getExploitBattleList`,
+        method: 'get',
+    })
+}

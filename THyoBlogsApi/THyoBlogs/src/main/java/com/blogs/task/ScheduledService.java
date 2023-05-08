@@ -15,6 +15,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -59,7 +60,8 @@ public class ScheduledService {
      * 腾游加速器监控初始化
      * */
     @Scheduled(cron = "0 0/1  * * * ?")
-    private void tyTimeCheck() {
+    @Async
+    public void tyTimeCheck() {
         QueryWrapper<TyUserInfo> tyUserInfoQueryWrapper = new QueryWrapper<>();
         tyUserInfoQueryWrapper.isNotNull("user_id");
         List<TyUserInfo> tyUserInfos = tyUserInfoMapper.selectList(tyUserInfoQueryWrapper);
@@ -90,8 +92,9 @@ public class ScheduledService {
 
 
 
-    @Scheduled(cron = "59 59 23 * * ?",zone = "Asia/Shanghai")
-    private  void speedAutoKeyBox(){
+    @Scheduled(cron = "0 0 0 * * ?",zone = "Asia/Shanghai")
+    @Async
+    public void speedAutoKeyBox(){
 
 
         QueryWrapper<SpeedInfo> speedInfoQueryWrapper = new QueryWrapper<>();

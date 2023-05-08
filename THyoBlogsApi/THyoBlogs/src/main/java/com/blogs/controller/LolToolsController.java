@@ -24,7 +24,7 @@ public class LolToolsController {
 
 
     @GetMapping("/getBattleList")
-    @ApiOperation(value = "获取最近对局信息")
+    @ApiOperation(value = "获取最近对局信息（普通模式）")
     public R getBattleList() throws IOException {
         Response battleList = lolToolsService.getBattleList();
         return R.succeed(JSON.parse(battleList.body().string()));
@@ -49,6 +49,11 @@ public class LolToolsController {
 
 
 
-
+    @GetMapping("/getExploitBattleList")
+    @ApiOperation(value = "获取最近对局信息(云顶之弈)")
+    public R getExploitBattleList() throws IOException {
+        Response exploitBattleList = lolToolsService.getExploitBattleList();
+        return R.succeed(JSON.parse(exploitBattleList.body().string()));
+    }
 
 }

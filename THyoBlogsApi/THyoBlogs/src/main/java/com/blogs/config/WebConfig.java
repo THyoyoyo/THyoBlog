@@ -5,6 +5,8 @@ import com.blogs.interceptor.TestInterceptor;
 import okhttp3.OkHttpClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.TaskScheduler;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -34,6 +36,14 @@ public class WebConfig implements WebMvcConfigurer {
     }
 
 
+    @Bean
+    public TaskScheduler taskScheduler() {
+        ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
+        taskScheduler.setPoolSize(50);
+        return taskScheduler;
+    }
+
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(getLoginInterceptor())
@@ -44,5 +54,9 @@ public class WebConfig implements WebMvcConfigurer {
         //test注解-拦截器
         registry.addInterceptor(getTestInterceptor()).addPathPatterns("/**");
     }
+
+
+
+
 
 }

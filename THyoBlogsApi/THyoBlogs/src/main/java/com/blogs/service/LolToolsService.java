@@ -10,4 +10,6 @@ public interface LolToolsService {
     public Response getOnlineStatus() throws IOException;
 
     public Response userProfileInfo() throws IOException;
+
+    public Response getExploitBattleList() throws IOException;
 }
