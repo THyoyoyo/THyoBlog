@@ -34,6 +34,20 @@
               <span v-else>启动定时任务</span>
             </el-button>
           </div>
+          <div class="tool-item">
+            <el-button
+              type="primary"
+              color="#333333"
+              @click="getAwardReceiving()"
+            >
+              <span>APP福利领取</span>
+            </el-button>
+          </div>
+          <div class="tool-item">
+            <el-button type="primary" color="#333333" @click="openBoxLogBox()">
+              <span>自动开箱记录</span>
+            </el-button>
+          </div>
         </template>
       </div>
       <div class="list">
@@ -222,6 +236,43 @@
       @getList="getList"
       @getReferer="getReferer"
     />
+    <!--  抽屉  -->
+    <el-drawer
+      v-model="drawerBoxLog"
+      title="三天内开箱记录"
+      direction="ltr"
+      size="600px"
+    >
+      <div class="box-log-ctx">
+        <el-table :data="openBoxLogList" :row-class-name="rowClassName">
+          <el-table-column
+            prop="created"
+            label="开启时间"
+            width="180"
+            align="center"
+          />
+
+          <el-table-column prop="score" label="获取道具" align="center">
+            <template #default="scope">
+              <div class="box-log-dataList">
+                <div
+                  v-for="(item, key) in scope.row.dataList"
+                  :key="key"
+                  class="dataList-info"
+                >
+                  <img
+                    :src="`https://iips.speed.qq.com/images/${item.avtarid}.png`"
+                  />
+                  <p>{{ item.avtarname }}</p>
+                  <p v-if="item.expTime > 0">({{ item.expTime / 24 }}天)</p>
+                  <p v-else>(永久)</p>
+                </div>
+              </div>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
+    </el-drawer>
   </div>
 </template>
 <script>
@@ -235,6 +286,8 @@ import {
   openBox,
   speedToolUpstate,
   speedToolSetAutoBoxInfo,
+  speedToolAwardReceiving,
+  speedToolGetOpenBoxLog,
 } from "../api/speedTool";
 import { TElMessage } from "../utils/inform";
 import login from "../components/speed/login.vue";
@@ -266,6 +319,8 @@ export default {
       UserBagInfo: {},
       openNum: 1,
       info: {},
+      openBoxLogList: [],
+      drawerBoxLog: false,
     });
     // ---------------------初始数据区---------------------
 
@@ -362,6 +417,21 @@ export default {
       });
     };
 
+    let getOpenBoxLog = () => {
+      speedToolGetOpenBoxLog().then((res) => {
+        state.openBoxLogList = res.data;
+      });
+    };
+
+    let rowClassName = ({ row }) => {
+      const date = new Date(row.created);
+      const today = new Date();
+      if (date.toDateString() === today.toDateString()) {
+        return "today-row";
+      }
+      return "";
+    };
+
     let autoBoxInfo = computed(() => {
       let info = state.box.find((v) => v.boxid == state.info.boxId);
       if (info) {
@@ -440,8 +510,26 @@ export default {
       });
     };
 
+    //一键领取APP每日签到奖励
+    let getAwardReceiving = () => {
+      speedToolAwardReceiving().then((res) => {
+        if (res.code == 200) {
+          TElMessage("领取成功！");
+        }
+      });
+    };
+
+    //打开记录
+    let openBoxLogBox = () => {
+      state.drawerBoxLog = true;
+      getOpenBoxLog();
+    };
+
     return {
       ...toRefs(state),
+      openBoxLogBox,
+      rowClassName,
+      getAwardReceiving,
       setAutoBoxById,
       setState,
       userOpenBox,
@@ -634,6 +722,26 @@ export default {
     .el-input {
       line-height: normal;
     }
+  }
+}
+.box-log-ctx {
+  border: 1px solid #e0e0e0;
+}
+.box-log-dataList {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  .dataList-info {
+    flex: none;
+    width: 80px;
+    img {
+      width: 50px;
+    }
+  }
+}
+:deep(.today-row) {
+  td {
+    background-color: rgb(236, 236, 236);
   }
 }
 </style>

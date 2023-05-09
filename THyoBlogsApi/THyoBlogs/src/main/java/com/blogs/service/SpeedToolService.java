@@ -3,6 +3,8 @@ package com.blogs.service;
 import com.blogs.model.speed.SpeedInfo;
 import okhttp3.Response;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Map;
 
@@ -23,4 +25,8 @@ public interface SpeedToolService {
  public SpeedInfo LoginChek(String account,String password);
 
  List<Map<String, Object>> asyncOpenBoxByKey(SpeedInfo speedInfo, Integer openNum, Integer keyId1, Integer keyNum1, Integer boxId) throws Exception;
+
+ public List<String> getGiftid(Integer userId) throws Exception;
+
+ public Object  dailyCheckIn(Integer type,String giftid) throws IOException;
 }

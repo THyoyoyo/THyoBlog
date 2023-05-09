@@ -10,7 +10,7 @@ import store from '../store/index'
 const service = axios.create({
     baseURL: '/api', // url = base url + request url
     // withCredentials: true, // send cookies when cross-domain requests
-    timeout: 20000, // request timeout
+    timeout: 60000, // request timeout
     retryDelay: 1000, // 请求间隙
     retry: 2, // 重试次数
     // withCredentials: true, // 是否携带cookie信息

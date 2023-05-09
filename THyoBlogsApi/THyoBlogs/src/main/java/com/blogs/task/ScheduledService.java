@@ -91,11 +91,9 @@ public class ScheduledService {
 
 
 
-
     @Scheduled(cron = "0 0 0 * * ?",zone = "Asia/Shanghai")
     @Async
     public void speedAutoKeyBox(){
-
 
         QueryWrapper<SpeedInfo> speedInfoQueryWrapper = new QueryWrapper<>();
         speedInfoQueryWrapper.eq("state",1);
@@ -146,4 +144,70 @@ public class ScheduledService {
 
     }
 
+
+    @Scheduled(cron = "0 0 8 * * ?",zone = "Asia/Shanghai")
+    @Async
+    public void speeAutoSignIn(){
+        QueryWrapper<SpeedInfo> speedInfoQueryWrapper = new QueryWrapper<>();
+        speedInfoQueryWrapper.eq("state",1);
+        List<SpeedInfo> speedInfos = speedInfoMapper.selectList(speedInfoQueryWrapper);
+
+
+        int THREAD_POOL_SIZE = speedInfos.size();
+
+        // 创建一个任务列表
+        List<Runnable> tasks = new ArrayList<>();
+
+        for (SpeedInfo speedInfo : speedInfos) {
+            tasks.add(() -> {
+                try {
+                    List<String> giftid = speedToolService.getGiftid(speedInfo.getSpeedUserId());
+
+                    for (int i = 0; i < giftid.size(); i++) {
+                        if (i == 0) {
+                            Object o = speedToolService.dailyCheckIn(0, giftid.get(i));
+                            System.out.println(o);
+                        } else {
+                            Object a = speedToolService.dailyCheckIn(1, giftid.get(i));
+                            System.out.println(a);
+                        }
+                        try {
+                            Thread.sleep(1000); // 延迟 1 秒
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        }
+
+
+        // 创建线程池并提交所有任务
+        ExecutorService executor = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
+        CountDownLatch latch = new CountDownLatch(THREAD_POOL_SIZE);
+        for (Runnable task : tasks) {
+            executor.submit(() -> {
+                try {
+                    task.run();
+                } finally {
+                    latch.countDown();
+                }
+            });
+        }
+
+        // 等待所有任务完成
+        try {
+            latch.await();
+
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("线程ERR", e);
+        } finally {
+            executor.shutdown();
+        }
+
+    }
 }

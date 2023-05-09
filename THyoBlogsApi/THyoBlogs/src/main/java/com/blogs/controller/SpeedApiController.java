@@ -1,11 +1,14 @@
 package com.blogs.controller;
 
 
+import cn.hutool.core.date.DateUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.blogs.annotation.Token;
+import com.blogs.mapper.speed.SpeedBoxLogMapper;
 import com.blogs.mapper.speed.SpeedInfoMapper;
 import com.blogs.mapper.user.UserMapper;
+import com.blogs.model.speed.SpeedBoxLog;
 import com.blogs.model.speed.SpeedInfo;
 import com.blogs.model.user.User;
 import com.blogs.service.ExpressToolsService;
@@ -28,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -52,6 +56,9 @@ public class SpeedApiController {
 
     @Autowired
     SpeedInfoMapper speedInfoMapper;
+
+    @Autowired
+    SpeedBoxLogMapper speedBoxLogMapper;
 
     @ApiOperation(value = "获取背包（宝箱）信息")
     @GetMapping("/getUserBoxItemInfoV2")
@@ -228,5 +235,50 @@ public class SpeedApiController {
         speedInfoMapper.updateById(speedInfo);
 
         return R.succeed();
+    }
+
+
+    @ApiOperation(value = "奖励一键领取（每日、签到次数、周末福利）")
+    @GetMapping("awardReceiving")
+    @Token(loginCode = 402)
+    public R awardReceiving() throws Exception {
+        List<String> giftid = speedToolService.getGiftid(null);
+        ArrayList<Object> objects = new ArrayList<>();
+        Object o = null;
+        for (int i = 0; i < giftid.size(); i++) {
+            if (i == 0) {
+                o = speedToolService.dailyCheckIn(0, giftid.get(i));
+            } else {
+                o = speedToolService.dailyCheckIn(1, giftid.get(i));
+            }
+            objects.add(o);
+
+            try {
+                Thread.sleep(1000); // 延迟 1 秒
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        return R.succeed(objects);
+    }
+
+
+    @ApiOperation(value = "查询三天内开箱记录")
+    @GetMapping("getOpenBoxLog")
+    public R getOpenBoxLog() throws Exception {
+        Integer userId = CurrentUserUtil.getUserId();
+
+        SpeedInfo speedInfo = speedInfoMapper.selectOne(new QueryWrapper<SpeedInfo>().eq("speed_user_id", userId));
+        QueryWrapper<SpeedBoxLog> speedBoxLogQueryWrapper = new QueryWrapper<>();
+        speedBoxLogQueryWrapper.eq("speed_id",speedInfo.getId()).ge("created", DateUtil.offsetDay(new Date(), -3)); // 只查询三天内的数据;
+        speedBoxLogQueryWrapper.orderByDesc("created");
+
+        List<SpeedBoxLog> speedBoxLogs = speedBoxLogMapper.selectList(speedBoxLogQueryWrapper);
+
+        for (SpeedBoxLog speedBoxLog : speedBoxLogs) {
+            speedBoxLog.setDataList((List<Map<String, Object>>) JSON.parse(speedBoxLog.getJson()));
+            speedBoxLog.setJson(null);
+        }
+        return R.succeed(speedBoxLogs);
     }
 }

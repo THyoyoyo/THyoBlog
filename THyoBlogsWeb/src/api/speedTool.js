@@ -73,3 +73,20 @@ export function speedToolSetAutoBoxInfo(data) {
         data
     })
 }
+
+
+
+export function speedToolAwardReceiving(data) {
+    return request({
+        url: `/speedTool/awardReceiving`,
+        method: 'get'
+    })
+}
+
+
+export function speedToolGetOpenBoxLog(data) {
+    return request({
+        url: `/speedTool/getOpenBoxLog`,
+        method: 'get'
+    })
+}
