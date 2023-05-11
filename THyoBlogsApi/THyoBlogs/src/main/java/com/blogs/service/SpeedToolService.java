@@ -28,5 +28,5 @@ public interface SpeedToolService {
 
  public List<String> getGiftid(Integer userId) throws Exception;
 
- public Object  dailyCheckIn(Integer type,String giftid) throws IOException;
+ public Object  dailyCheckIn(Integer type,String giftid,Integer speedUserId) throws Exception;
 }

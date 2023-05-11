@@ -145,7 +145,7 @@ public class ScheduledService {
     }
 
 
-    @Scheduled(cron = "0 0 8 * * ?",zone = "Asia/Shanghai")
+    @Scheduled(cron = "0 0 6 * * ?",zone = "Asia/Shanghai")
     @Async
     public void speeAutoSignIn(){
         QueryWrapper<SpeedInfo> speedInfoQueryWrapper = new QueryWrapper<>();
@@ -165,11 +165,9 @@ public class ScheduledService {
 
                     for (int i = 0; i < giftid.size(); i++) {
                         if (i == 0) {
-                            Object o = speedToolService.dailyCheckIn(0, giftid.get(i));
-                            System.out.println(o);
+                            Object o = speedToolService.dailyCheckIn(0, giftid.get(i),speedInfo.getSpeedUserId());
                         } else {
-                            Object a = speedToolService.dailyCheckIn(1, giftid.get(i));
-                            System.out.println(a);
+                            Object a = speedToolService.dailyCheckIn(1, giftid.get(i),speedInfo.getSpeedUserId());
                         }
                         try {
                             Thread.sleep(1000); // 延迟 1 秒

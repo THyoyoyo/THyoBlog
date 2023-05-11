@@ -136,6 +136,7 @@ public class SpeedApiController {
         SpeedInfo speedInfo = new SpeedInfo();
         BeanUtils.copyProperties(info,speedInfo);
         speedInfo.setSpeedUserId(userId);
+        speedInfo.setState(0);
         speedInfoMapper.insert(speedInfo);
 
         return R.succeed();
@@ -247,9 +248,9 @@ public class SpeedApiController {
         Object o = null;
         for (int i = 0; i < giftid.size(); i++) {
             if (i == 0) {
-                o = speedToolService.dailyCheckIn(0, giftid.get(i));
+                o = speedToolService.dailyCheckIn(0, giftid.get(i),null);
             } else {
-                o = speedToolService.dailyCheckIn(1, giftid.get(i));
+                o = speedToolService.dailyCheckIn(1, giftid.get(i),null);
             }
             objects.add(o);
 

@@ -164,6 +164,7 @@ public class SpeedToolServiceImpl implements SpeedToolService {
         List<CompletableFuture<Map<String, Object>>> futures = new ArrayList<>();
 
         for (int i = 0; i < openNum; i++) {
+            Thread.sleep(300);
             futures.add(fetchrequestAsync(request));
         }
 
@@ -237,13 +238,14 @@ public class SpeedToolServiceImpl implements SpeedToolService {
 
     //每日签到领取
     @Override
-    public Object dailyCheckIn(Integer type,String giftid) throws IOException {
+    public Object dailyCheckIn(Integer type,String giftid,Integer speedUserId) throws Exception {
 
         String url = type == 0 ? "https://mwegame.qq.com/ams/sign/doSign/month":"https://mwegame.qq.com/ams/send/handle";
 
-//        Integer userId = CurrentUserUtil.getUserId();
+        Integer userId = speedUserId == null ? CurrentUserUtil.getUserId() : speedUserId;
+
         QueryWrapper<SpeedInfo> speedInfoQueryWrapper = new QueryWrapper<>();
-        speedInfoQueryWrapper.eq("speed_user_id",1);
+        speedInfoQueryWrapper.eq("speed_user_id",userId);
         SpeedInfo speedInfo = speedInfoMapper.selectOne(speedInfoQueryWrapper);
 
         Map<String, String> parameters = new HashMap<>();
