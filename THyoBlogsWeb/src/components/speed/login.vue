@@ -26,6 +26,25 @@
           <el-input v-model="loginFrom.password" />
         </el-form-item>
       </el-form>
+
+      <div class="history-account" v-if="historyAccount.length > 0">
+        <div class="history-account-titem">历史登录账号</div>
+        <div class="history-account-ctx">
+          <div
+            class="ctx-item"
+            v-for="(item, key) in historyAccount"
+            :key="key"
+          >
+            <div class="ctx-item-account">{{ item.account }}</div>
+            <div class="ctx-item-btn">
+              <el-button type="info" size="small" @click="rapidLogin(item)"
+                >登录</el-button
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="cutLoginType(0)">前往注册</el-button>
@@ -83,7 +102,7 @@
   </div>
 </template>
 <script>
-import { reactive, toRefs, ref } from "vue";
+import { reactive, toRefs, ref, onMounted } from "vue";
 import { login } from "@/api/login";
 import { TElNotification } from "@/utils/inform";
 import { useStore } from "vuex";
@@ -120,6 +139,7 @@ export default {
         qq: "",
         referer: " ",
       },
+      historyAccount: [],
     });
 
     let userLogin = () => {
@@ -134,6 +154,21 @@ export default {
                 emit("getList");
                 emit("getReferer");
               });
+              let accountData = localStorage.getItem("accountData")
+                ? JSON.parse(localStorage.getItem("accountData"))
+                : [];
+
+              let index = accountData.findIndex((v) => {
+                return v.account == state.loginFrom.account;
+              });
+
+              if (index == -1) {
+                accountData.push(state.loginFrom);
+                localStorage.setItem(
+                  "accountData",
+                  JSON.stringify(accountData)
+                );
+              }
             } else {
               ElMessageBox.confirm(`Sorry,${res.message}`, "网站提示", {
                 confirmButtonText: "知道了",
@@ -195,9 +230,23 @@ export default {
         emit("openRegisterBox", true);
       }
     };
+
+    onMounted(() => {
+      state.historyAccount = localStorage.getItem("accountData")
+        ? JSON.parse(localStorage.getItem("accountData"))
+        : [];
+    });
+
+    // 快速登录
+    let rapidLogin = (item) => {
+      state.loginFrom.account = item.account;
+      state.loginFrom.password = item.password;
+      userLogin();
+    };
     return {
       ...toRefs(state),
       userLogin,
+      rapidLogin,
       loginFromEl,
       registerFromEl,
       handleClose,
@@ -209,4 +258,33 @@ export default {
 };
 </script>
 <style lang="less" scoped>
+.history-account {
+  .history-account-titem {
+    margin-top: 30px;
+    padding-left: 18px;
+  }
+
+  .history-account-ctx {
+    width: 280px;
+    box-sizing: border-box;
+    padding-left: 70px;
+    .ctx-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 5px;
+      border-bottom: 1px solid #e7e7e7;
+      padding-bottom: 5px;
+      .ctx-item-account {
+        font-size: 16px;
+        font-weight: 700;
+      }
+
+      /deep/ .ctx-item-btn {
+        .el-button {
+        }
+      }
+    }
+  }
+}
 </style>

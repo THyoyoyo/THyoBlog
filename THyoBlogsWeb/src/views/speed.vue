@@ -3,6 +3,11 @@
     <div class="speed-header top-padding" ref="homeHeader"></div>
     <div class="speed-ctx">
       <div class="tool">
+        <div class="tool-item">
+          <el-button type="info" color="red" @click="drawerBoxCourse = true">
+            <span>使用教程</span>
+          </el-button>
+        </div>
         <template v-if="!userInfo.id">
           <el-button
             type="primary"
@@ -22,7 +27,7 @@
         <template v-else>
           <div class="tool-item w600">
             <el-input v-model="referer" placeholder="请前往掌上APP抓取referer">
-              <template #prepend>我的referer链接</template>
+              <template #prepend>权限链接</template>
               <template #append>
                 <el-button @click="setReferer()">保存</el-button>
               </template>
@@ -30,8 +35,26 @@
           </div>
           <div class="tool-item">
             <el-button type="primary" color="#333333" @click="setState()">
-              <span v-if="info.state">关闭定时任务</span>
-              <span v-else>启动定时任务</span>
+              <span v-if="info.state" class="flex-center"
+                >关闭定时任务
+                <el-tooltip placement="top">
+                  <template #content>
+                    开启自动完成如下功能：<br />
+                    1、自动00.00.00开启宝箱（需点击下方宝箱设置开启宝箱）<br />
+                    2、每日自动6点领取APP礼包（每日点券、签到奖励、周末福利）
+                  </template>
+                  <el-icon><InfoFilled /></el-icon></el-tooltip
+              ></span>
+              <span v-else class="flex-center"
+                >启动定时任务
+                <el-tooltip placement="top">
+                  <template #content>
+                    开启自动完成如下功能：<br />
+                    1、自动00.00.00开启宝箱<br />
+                    2、每日自动6点领取APP礼包
+                  </template>
+                  <el-icon><InfoFilled /></el-icon></el-tooltip
+              ></span>
             </el-button>
           </div>
           <div class="tool-item">
@@ -40,12 +63,21 @@
               color="#333333"
               @click="getAwardReceiving()"
             >
-              <span>APP福利领取</span>
+              <span>一键领取APP礼包</span>
             </el-button>
           </div>
           <div class="tool-item">
             <el-button type="primary" color="#333333" @click="openBoxLogBox()">
               <span>自动开箱记录</span>
+            </el-button>
+          </div>
+          <div class="tool-item">
+            <el-button
+              type="primary"
+              color="#333333"
+              @click="openLoginBox(true)"
+            >
+              <span>切换账号</span>
             </el-button>
           </div>
         </template>
@@ -273,10 +305,43 @@
         </el-table>
       </div>
     </el-drawer>
+    <!-- 教程course -->
+    <el-drawer
+      v-model="drawerBoxCourse"
+      title="使用教程"
+      direction="ltr"
+      size="600px"
+    >
+      <div class="course-box">
+        <h2>注意事项：</h2>
+        <p>1、教程手机系统：IOS</p>
+        <p>2、需要下载App：掌上飞车、Stream</p>
+        <p>3、Android系统需要在自己寻找抓包工具，流程与本教程一致</p>
+        <p>
+          4、抓包完成后请永久关闭掌上飞车App,不能再次打开，否则抓包数据会失效
+        </p>
+
+        <h2>链接示例（以下只是演示、请复制完整URL）：</h2>
+        <p>
+          https://bang.qq.com/app/speed/card/userbag?serverName=&areaName=************
+        </p>
+        <h2>视频教程：</h2>
+        <iframe
+          src="//player.bilibili.com/player.html?aid=271018840&bvid=BV18c411K7YU&cid=1125885447&page=1"
+          scrolling="no"
+          border="0"
+          frameborder="no"
+          framespacing="0"
+          allowfullscreen="true"
+        >
+        </iframe>
+      </div>
+    </el-drawer>
   </div>
 </template>
 <script>
 import { computed, reactive, toRefs } from "vue";
+import { InfoFilled } from "@element-plus/icons";
 import {
   getUserBagInfo,
   getUserBoxItemInfoV2,
@@ -295,6 +360,7 @@ import { useStore } from "vuex";
 export default {
   components: {
     login,
+    InfoFilled,
   },
   setup() {
     const store = useStore();
@@ -321,6 +387,7 @@ export default {
       info: {},
       openBoxLogList: [],
       drawerBoxLog: false,
+      drawerBoxCourse: false,
     });
     // ---------------------初始数据区---------------------
 
@@ -593,7 +660,7 @@ export default {
       }
     }
     .w600 {
-      width: 600px;
+      width: 400px;
     }
     .tool-item {
       margin-right: 20px;
@@ -726,6 +793,7 @@ export default {
 }
 .box-log-ctx {
   border: 1px solid #e0e0e0;
+  border-bottom: none;
 }
 .box-log-dataList {
   display: flex;
@@ -742,6 +810,24 @@ export default {
 :deep(.today-row) {
   td {
     background-color: rgb(236, 236, 236);
+  }
+}
+.flex-center {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.course-box {
+  h2 {
+    margin: 5px 0;
+  }
+  p {
+    text-indent: 2em;
+  }
+  iframe {
+    border: 1px solid #cacaca;
+    width: 100%;
+    height: 600px;
   }
 }
 </style>
