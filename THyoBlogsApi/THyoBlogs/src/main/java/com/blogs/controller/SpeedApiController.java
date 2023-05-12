@@ -277,7 +277,7 @@ public class SpeedApiController {
         List<SpeedBoxLog> speedBoxLogs = speedBoxLogMapper.selectList(speedBoxLogQueryWrapper);
 
         for (SpeedBoxLog speedBoxLog : speedBoxLogs) {
-            speedBoxLog.setDataList((List<Map<String, Object>>) JSON.parse(speedBoxLog.getJson()));
+            speedBoxLog.setDataList((Map<String, Object>) JSON.parse(speedBoxLog.getJson()));
             speedBoxLog.setJson(null);
         }
         return R.succeed(speedBoxLogs);
