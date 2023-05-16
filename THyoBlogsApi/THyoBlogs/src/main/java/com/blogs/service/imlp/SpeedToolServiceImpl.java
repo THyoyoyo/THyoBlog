@@ -180,14 +180,16 @@ public class SpeedToolServiceImpl implements SpeedToolService {
         //日志
         for (Map<String, Object> respons : responses) {
 
-//            Map<String, Object> data =(Map<String, Object>) respons.get("data");
-//            List<Map<String, Object>> itemList =(List<Map<String, Object>>) data.get("itemList");
-//            if(itemList !=null){     }
+
+            Map<String, Object> data =(Map<String, Object>) respons.get("data");
+            List<Map<String, Object>> itemList =(List<Map<String, Object>>) data.get("itemList");
+            if(itemList !=null){
                 SpeedBoxLog speedBoxLog = new SpeedBoxLog();
                 speedBoxLog.setSpeedId(speedInfo.getId());
-                speedBoxLog.setJson(JSON.toJSONString(respons));
+                speedBoxLog.setJson(JSON.toJSONString(itemList));
                 speedBoxLog.setCreated(new Date());
                 speedBoxLogMapper.insert(speedBoxLog);
+            }
 
         }
 

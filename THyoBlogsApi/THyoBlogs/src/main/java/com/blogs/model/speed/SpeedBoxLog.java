@@ -52,5 +52,5 @@ public class SpeedBoxLog implements Serializable {
 	/** 列表数据 */
 	@ApiModelProperty(value = "列表数据")
 	@TableField(exist = false)
-	private Map<String,Object> dataList;
+	private List<Map<String,Object>>  dataList;
 }
