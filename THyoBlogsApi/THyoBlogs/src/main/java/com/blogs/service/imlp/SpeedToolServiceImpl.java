@@ -164,8 +164,14 @@ public class SpeedToolServiceImpl implements SpeedToolService {
         List<CompletableFuture<Map<String, Object>>> futures = new ArrayList<>();
 
         for (int i = 0; i < openNum; i++) {
-            Thread.sleep(400);
-            futures.add(fetchrequestAsync(request));
+            CompletableFuture<Map<String, Object>> future = new CompletableFuture<>();
+            Response response = okHttpClient.newCall(request).execute();
+            String responseBody = response.body().string();
+            System.out.println(responseBody);
+            ObjectMapper objectMapper = new ObjectMapper();
+            Map<String, Object> map = objectMapper.readValue(responseBody, new TypeReference<Map<String, Object>>() {});
+            future.complete(map);
+            futures.add(future);
         }
 
         CompletableFuture<Void> allFutures = CompletableFuture.allOf(
