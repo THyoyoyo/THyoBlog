@@ -8,7 +8,7 @@ import adminLayout from "../layout/admin/layout.vue"
 
 
 const routes = [
-  // 用户端
+  // 用户端PC
   {
     path: "/",
     component: layout,
@@ -21,6 +21,7 @@ const routes = [
     component: adminLayout,
     children: [...adminRouter]
   },
+  // 后台登录页
   {
     path: "/login",
     name: "login",

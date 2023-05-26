@@ -1,7 +1,10 @@
 package com.blogs.controller;
 
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.blogs.mapper.takeawayEvaluation.TakeawayEvaluationMapper;
 import com.blogs.model.expressTools.*;
+import com.blogs.model.takeawayEvaluation.TakeawayEvaluation;
 import com.blogs.service.ExpressToolsService;
 import com.blogs.vo.common.R;
 import io.swagger.annotations.Api;
@@ -9,8 +12,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/expressTools")
@@ -19,6 +21,9 @@ public class ExpressToolsController {
 
     @Autowired
     private ExpressToolsService expressToolsService;
+
+    @Autowired
+    private TakeawayEvaluationMapper takeawayEvaluationMapper;
 
 
     @ApiOperation(value = "百度翻译")
@@ -114,4 +119,59 @@ public class ExpressToolsController {
         Object tyUserInfoByToken = expressToolsService.getTyUserInfoByToken(token);
         return R.succeed(tyUserInfoByToken);
     }
+
+    @ApiOperation(value = "外卖评价获取")
+    @GetMapping("/getWmEvaluate")
+    public R getWmEvaluate(@RequestParam("length") Integer  length){
+        QueryWrapper<TakeawayEvaluation> takeawayEvaluationQueryWrapper = new QueryWrapper<>();
+        List<TakeawayEvaluation> takeawayEvaluations = takeawayEvaluationMapper.selectList(takeawayEvaluationQueryWrapper);
+
+        List<String> shortContents = new ArrayList<>();
+
+        for (TakeawayEvaluation evaluation : takeawayEvaluations) {
+            String content = evaluation.getContent();
+            String cleanedText = content.replaceAll("[\\p{P}+~$`^=|<>～｀＄＾＋＝｜＜＞￥×]", "");
+            if (cleanedText.length() < length) {
+                shortContents.add(cleanedText);
+            }
+        }
+        Random random = new Random();
+        int randomIndex = random.nextInt(shortContents.size());
+
+        return  R.succeed(shortContents.get(randomIndex));
+    }
+
+
+
+
+    @ApiOperation(value = "添加外卖评价")
+    @PostMapping("/addWmEvaluate")
+    public R addWmEvaluate(@RequestBody Map<String,Object> dto){
+
+        List<String> list = (List<String>) dto.get("list");
+        for (String item : list) {
+            TakeawayEvaluation takeawayEvaluation = new TakeawayEvaluation();
+            takeawayEvaluation.setContent(item);
+            takeawayEvaluationMapper.insert(takeawayEvaluation);
+        }
+
+        return  R.succeed();
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
