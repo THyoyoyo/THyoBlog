@@ -170,7 +170,7 @@ public class ScheduledService {
                             Object a = speedToolService.dailyCheckIn(1, giftid.get(i),speedInfo.getSpeedUserId());
                         }
                         try {
-                            Thread.sleep(1000); // 延迟 1 秒
+                            Thread.sleep(2000); // 延迟 1 秒
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }

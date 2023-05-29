@@ -255,7 +255,7 @@ public class SpeedApiController {
             objects.add(o);
 
             try {
-                Thread.sleep(1000); // 延迟 1 秒
+                Thread.sleep(2000); // 延迟 1 秒
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
