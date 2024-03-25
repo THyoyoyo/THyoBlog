@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/THyoBlogs/THyoBlogs.iml" filepath="$PROJECT_DIR$/THyoBlogs/THyoBlogs.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/THyoBlogsApi.iml" filepath="$PROJECT_DIR$/.idea/THyoBlogsApi.iml" />
     </modules>
   </component>
